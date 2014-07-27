@@ -7,5 +7,5 @@
 package start
 
 import (
-    "github.com/ogier/pflag"
+	flag "github.com/ogier/pflag"
 )
