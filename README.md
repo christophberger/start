@@ -56,7 +56,7 @@ Define your application settings like you would define flags with [pflag](https:
 	var flagvar int
 	flag.IntVar(&flagvar, "flagname", 1234, "help message")
 
-then (optionally, if not using commands as well) call 
+Then (optionally, if not using commands as well) call 
 	
 	start.Parse()
 
@@ -99,11 +99,22 @@ This method calls `start.Parse()` and then executes the given command.
 
 ### Notes about the config file
 
-By default, *start* will look for a configuration file with the name *<application>*.toml, unless you specifiy a name through
+By default, *start* looks for a configuration file in the following places:
+
+* In the path defined through the environment variable <APPLICATION>PATH
+* In the application's directory 
+* In the user's home directory
+
+The name can be either <application>.toml or .<application> (the latter form is preferred when used in a user's home dir on Unix-like systems). 
+
+You can also set a custom name:
 
 	start.UseConfigFile("<your_cfg_file_name>")
 
-The configuration file is a [TOML](https://github.com/toml-lang/toml) file. By convention, all of the application's global variables go into the [globals] section. Besides this section, you can include other sections as well. This is useful for providing defaults for more complex data structures (arrays, tables, nested settings, etc). 
+If <your_cfg_file_name> is just a name, *start* searches for this file in the places listed above. You can, however, also specify a complete (absolute) path to the file (including the name).
+
+
+The configuration file is a [TOML](https://github.com/toml-lang/toml) file. By convention, all of the application's global variables go into the [globals] section. Besides this section, you can include other sections as well. This is useful if you want to provide defaults for more complex data structures (arrays, tables, nested settings, etc). 
 
 *start* uses [toml-go](https://github.com/laurent22/toml-go) for parsing the config file. The parsed contents are available via a property named "cfg", and you can use toml-go methods for accessing the contents (after having invoked `start.Parse()`or `start.Up()`):
 
@@ -166,26 +177,27 @@ Define and implement some commands:
 	func translate() {
 		source := flag.Arg(1)
 		
-		target := google.Translate(sl, source, &tlp)
+		target := google.Translate(sl, source, &tlp)  // this is completely made up
 		
 		if &sp {
-			apple.VoiceKit.Speak(target, &vp)
+			apple.VoiceKit.SpeakOutString(target).WithVoice(&vp)  // this also
 		}
 	}
 
 	func checkstyle() {
 		source := flag.Arg(1)
-		stdout.Println(office.StyleChecker(source))
+		stdout.Println(office.StyleChecker(source))  // also made up
 	}
 
 	func checkspelling() {
 		source := flag.Arg(1)
-		stdout.Println(aspell.Check(source))
+		stdout.Println(aspell.Check(source))  // just fantasy
 	}
 
 
 Change Log
 ----------
+No version released yet.
 
 
 About the name

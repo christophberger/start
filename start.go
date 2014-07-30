@@ -8,4 +8,8 @@ package start
 
 import (
 	flag "github.com/ogier/pflag"
+	
 )
+
+type start struct {
+    cfg 
