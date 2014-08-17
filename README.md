@@ -6,8 +6,8 @@ Start Go command line apps with ease
 
 Status
 ------
-Pre-Alpha.
-In fact, there is just this README right now. I use it as a functional specification.
+v0.1.0-alpha.
+Most of this README is not implemented yet. I use it as a functional specification.
 
 
 Executive Summary
