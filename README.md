@@ -7,6 +7,7 @@ Start Go command line apps with ease
 Status
 ------
 Pre-Alpha.
+In fact, there is just this README right now. I use it as a functional specification.
 
 
 Executive Summary
@@ -47,7 +48,7 @@ Usage
 
 ### Define application settings:
 
-Define your application settings like you would define flags with [pflag](https://github.com/ogier/pflag):
+Define your application settings like you would define flags with the flag or [pflag](https://github.com/ogier/pflag) packages:
 
 	var ip *int = start.Int("intname", "n", 1234, "help message")
 	var sp *string = start.String("strname", "s", "default", "help message")
@@ -63,8 +64,8 @@ Then (optionally, if not using commands as well) call
 (instead of pflag.Parse()) to initialize each variable from these sources, in the given order:
 
 1. From a commandline flag of the long or short name.
-2. From an environment variable of the long name, if the commandline flag does not exist.
-3. From an entry in the [globals] section of the config file, if the environment variable does not exist.
+2. From an environment variable named as <APPLICATION>_<LONGNAME>, if the commandline flag does not exist. (<APPLICATION> is the executable's name, and <LONGNAME> is the flag's long name.)
+3. From an entry in the config file, if the environment variable does not exist.
 4. From the default value if the config file entry does not exist.
 
 This way, you are free to decide whether to use a config file, environment variables, flags, or any combination of these. For example, let's assume you want to implement an HTTP server. Some of the settings will depend on the environment (development, test, or production), such as the HTTP port. Using enviornment variables, you can define, for example, port 8080 on the test server, and port 80 on the production server. Other settings will be the same across environments, so put them into the config file. And finally, you can overwrite any default setting at any time via command line flags. 
@@ -101,25 +102,32 @@ This method calls `start.Parse()` and then executes the given command.
 
 By default, *start* looks for a configuration file in the following places:
 
-* In the path defined through the environment variable <APPLICATION>PATH
-* In the application's directory 
+* In the path defined through the environment variable <APPLICATION>_CFGPATH
+* In the working directory 
 * In the user's home directory
 
-The name can be either <application>.toml or .<application> (the latter form is preferred when used in a user's home dir on Unix-like systems). 
+The name of the configuration file is either <application>.toml or .<application> (the latter form is preferred when used in a user's home dir on Unix-like systems). 
 
 You can also set a custom name:
 
-	start.UseConfigFile("<your_cfg_file_name>")
+	start.UseConfigFile("<your_config_file>")
 
-If <your_cfg_file_name> is just a name, *start* searches for this file in the places listed above. You can, however, also specify a complete (absolute) path to the file (including the name).
+*start* then searches for this file name in the places listed above.
 
+You may as well specify a full path to your configuration file:
 
-The configuration file is a [TOML](https://github.com/toml-lang/toml) file. By convention, all of the application's global variables go into the [globals] section. Besides this section, you can include other sections as well. This is useful if you want to provide defaults for more complex data structures (arrays, tables, nested settings, etc). 
+	start.UseConfigFile("<path_to_your_config_file>")
 
-*start* uses [toml-go](https://github.com/laurent22/toml-go) for parsing the config file. The parsed contents are available via a property named "cfg", and you can use toml-go methods for accessing the contents (after having invoked `start.Parse()`or `start.Up()`):
+The above places do not get searched in this case.
 
-	langs := start.cfg.GetArray("colors")
-	langs := start.cfg.GetDate("publish")
+Or simply set <APPLICATION>_CFGPATH to a path of your choice. If this path does not end in ".toml", *start* assumes that the path is a directory and tries to find "<application>.toml" in this directory.
+
+The configuration file is a [TOML](https://github.com/toml-lang/toml) file. By convention, all of the application's global variables are top-level "key=value" entries, outside any section. Besides this,  you can include your own sections as well. This is useful if you want to provide defaults for more complex data structures (arrays, tables, nested settings, etc). Access the parsed TOML document directly if you want to read values from TOML sections.
+
+*start* uses [toml-go](https://github.com/laurent22/toml-go) for parsing the config file. The parsed contents are available via a property named "CfgFile", and you can use toml-go methods for accessing the contents (after having invoked `start.Parse()`or `start.Up()`):
+
+	langs := start.CfgFile.GetArray("colors")
+	langs := start.CfgFile.GetDate("publish")
 
 (See the toml-go project for all avaialble methods.)
 
@@ -127,19 +135,21 @@ The configuration file is a [TOML](https://github.com/toml-lang/toml) file. By c
 Example
 -------
 
-Set up a config file:
+For this example, let's assume you want to build a fictitious application for translating text. We will go through the steps of setting up a config file, environment variables, command line flags, and commands.
 
-	[globals]
-	targetlang = mandarin
+First, set up a config file consisting of key/value pairs:
+
+	targetlang = bavarian
 	sourcelang = english_us
 	voice = Janet
 
 
-Set an environment variable:
+Set an environment variable. Let's assume your executable is named "gotranslate":
 
-	$ export VOICE = Sepp
+	$ export GOTRANSLATE_VOICE = Sepp
 
-Define the global variables in your code:
+
+Define the global variables in your code, just as you would do with the flag or [pflag](https://github.com/ogier/pflag) packages:
 
 	tlp := flag.StringP("targetlang", "t", "danish", "The language to translate into")
 	var sl string
