@@ -78,7 +78,14 @@ func (c *ConfigFile) findAndReadTomlFile(name string) error {
 	// so get the user's home dir instead
 	cfgPath = GetHomeDir()
 	if len(cfgPath) > 0 {
-		c.doc, err = c.readTomlFile(filepath.Join(cfgPath, name))
+		var path string
+		if len(name) == 0 {
+			// no name supplied; in $HOME use .<application>
+			path = filepath.Join(cfgPath, "."+AppName())
+		} else {
+			path = filepath.Join(cfgPath, name)
+		}
+		c.doc, err = c.readTomlFile(path)
 		if err == nil {
 			return nil
 		}
@@ -89,6 +96,9 @@ func (c *ConfigFile) findAndReadTomlFile(name string) error {
 	// so try the working dir instead
 	cfgPath, err = os.Getwd()
 	if err == nil {
+		if len(name) == 0 {
+			name = AppName() + ".toml"
+		}
 		c.doc, err = c.readTomlFile(filepath.Join(cfgPath, name))
 		return err
 	}

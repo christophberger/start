@@ -7,7 +7,8 @@ Start Go command line apps with ease
 Status
 ------
 v0.1.0-alpha.
-Most of this README is not implemented yet. I use it as a functional specification.
+Parse() implemented.
+TODO: Implement commands, subcommands, and Up().
 
 
 Executive Summary
