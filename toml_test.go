@@ -3,7 +3,6 @@ package start
 import (
 	"os"
 	"path/filepath"
-	"strings"
 	"testing"
 	"time"
 
@@ -22,7 +21,7 @@ func TestReadTomlFile(t *testing.T) {
 			So(err, ShouldBeNil)
 
 			Convey("and it should read all test values", func() {
-				So(tomlDoc.GetString("astring"), ShouldEqual, "Hello")
+				So(tomlDoc.GetString("astring"), ShouldEqual, "From Config File")
 				So(tomlDoc.GetBool("abool"), ShouldEqual, true)
 				So(tomlDoc.GetInt("anint"), ShouldEqual, 42)
 				So(tomlDoc.GetDate("adate").Equal(time.Date(2014, time.August, 17, 9, 25, 0, 0, time.UTC)), ShouldBeTrue)
@@ -47,15 +46,17 @@ func TestConfigFile(t *testing.T) {
 		tomlfile, err := filepath.Abs("test")
 		So(err, ShouldBeNil)
 
-		Convey("then NewConfigFile loads "+appName()+".toml from that directory and returns a new ConfigFile", func() {
+		Convey("then NewConfigFile loads start.toml from that directory and returns a new ConfigFile", func() {
 			cfg := NewConfigFile(tomlfile)
 			So(cfg, ShouldNotBeNil)
+			Convey("and AppName() should return start", func() {
+				So(AppName(), ShouldEqual, "start")
+			})
 		})
-
 	})
 
 	Convey("When passing just a file name to NewConfigFile", t, func() {
-		tomlname := "start_test.toml"
+		tomlname := "custom.toml"
 		var tomlpath string
 
 		Convey("and the file exists in the home directory", func() {
@@ -78,8 +79,8 @@ func TestConfigFile(t *testing.T) {
 			})
 		})
 
-		Convey("and the file is specified by the env var "+strings.ToUpper(appName())+"_CFGPATH", func() {
-			os.Setenv(strings.ToUpper(appName())+"_CFGPATH", "test/test.toml")
+		Convey("and the file is specified by the env var START_CFGPATH", func() {
+			os.Setenv("START_CFGPATH", "test/test.toml")
 
 			Convey("then NewConfigFile should find the file", func() {
 				cfg := NewConfigFile("")
@@ -101,7 +102,7 @@ func TestConfigFile(t *testing.T) {
 
 		Reset(func() {
 			os.Remove(tomlpath)
-			os.Setenv(strings.ToUpper(os.Args[0])+"_CFGPATH", "")
+			os.Setenv("START_CFGPATH", "")
 		})
 	})
 }
