@@ -1,13 +1,14 @@
 package start
 
 import (
-	"github.com/laurent22/toml-go"
-	. "github.com/smartystreets/goconvey/convey"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/laurent22/toml-go"
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestReadTomlFile(t *testing.T) {
@@ -35,7 +36,18 @@ func TestConfigFile(t *testing.T) {
 		tomlfile, err := filepath.Abs("test/test.toml")
 		So(err, ShouldBeNil)
 
-		Convey("then NewConfi)File loads "+tomlfile+" and returns a new ConfigFile", func() {
+		Convey("then NewConfigFile loads "+tomlfile+" and returns a new ConfigFile", func() {
+			cfg := NewConfigFile(tomlfile)
+			So(cfg, ShouldNotBeNil)
+		})
+
+	})
+
+	Convey("When passing an absolute directory to NewConfigFile", t, func() {
+		tomlfile, err := filepath.Abs("test")
+		So(err, ShouldBeNil)
+
+		Convey("then NewConfigFile loads "+appName()+".toml from that directory and returns a new ConfigFile", func() {
 			cfg := NewConfigFile(tomlfile)
 			So(cfg, ShouldNotBeNil)
 		})
@@ -66,8 +78,8 @@ func TestConfigFile(t *testing.T) {
 			})
 		})
 
-		Convey("and the file is specified by <APPLICATION>_CFGPATH", func() {
-			os.Setenv(strings.ToUpper(os.Args[0])+"_CFGPATH", "test/test.toml")
+		Convey("and the file is specified by the env var "+strings.ToUpper(appName())+"_CFGPATH", func() {
+			os.Setenv(strings.ToUpper(appName())+"_CFGPATH", "test/test.toml")
 
 			Convey("then NewConfigFile should find the file", func() {
 				cfg := NewConfigFile("")
