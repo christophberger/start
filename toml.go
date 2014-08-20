@@ -1,17 +1,22 @@
 // Copyright 2014 Christoph Berger. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
-
+// Use of this source code is governed by the BSD (3-Clause)
+// License that can be found in the LICENSE.txt file.
+//
+// This source code may use third-party source code whose
+// licenses are provided in the respective license files.
+//
 // See the file README.md about usage of the start package.
 
 package start
 
 import (
 	"errors"
-	"github.com/laurent22/toml-go"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
+
+	"github.com/laurent22/toml-go"
 )
 
 // ConfigFile represents a configuration file.
@@ -47,12 +52,18 @@ func (c *ConfigFile) findAndReadTomlFile(fileName string) error {
 
 	// is fileName an absolute path? If so, go ahead and read the file.
 	if filepath.IsAbs(fileName) {
-		c.doc, err = c.readTomlFile(fileName)
+		fileInfo, _ := os.Stat(fileName)
+		if fileInfo.IsDir() {
+			c.doc, err = c.readTomlFile(filepath.Join(fileName, appName()+".toml"))
+		} else {
+			c.doc, err = c.readTomlFile(fileName)
+		}
 		return err
 	}
 
-	// is the environment variable <APPNAME>_CFGPATH set?
-	cfgPath := os.Getenv(strings.ToUpper(os.Args[0]) + "_CFGPATH")
+	// is the environment variable <APPNAME>_CFGPATH set
+	// (either to a dir path or to a file path)?
+	cfgPath := os.Getenv(strings.ToUpper(appName() + "_CFGPATH"))
 	if len(cfgPath) > 0 {
 		if len(fileName) > 0 {
 			cfgPath = filepath.Join(cfgPath, fileName)
@@ -65,7 +76,7 @@ func (c *ConfigFile) findAndReadTomlFile(fileName string) error {
 
 	// environment variable is not set, or the config file was not found there,
 	// so get the user's home dir instead
-	cfgPath = c.getHomeDir()
+	cfgPath = getHomeDir()
 	if len(cfgPath) > 0 {
 		c.doc, err = c.readTomlFile(filepath.Join(cfgPath, fileName))
 		if err == nil {
@@ -93,7 +104,9 @@ func (c *ConfigFile) readTomlFile(path string) (toml.Document, error) {
 	return doc, errors.New("File not found: " + path)
 }
 
-func (c *ConfigFile) getHomeDir() string {
+func getHomeDir() string {
+	// credits for this OS-independent solution go to http://stackoverflow.com/a/7922977
+	// (os.User is not an option here. It relies on CGO and thus prevents cross compiling.)
 	home := os.Getenv("HOMEDRIVE") + os.Getenv("HOMEPATH")
 	if home == "" {
 		home = os.Getenv("USERPROFILE")
@@ -102,4 +115,9 @@ func (c *ConfigFile) getHomeDir() string {
 		home = os.Getenv("HOME")
 	}
 	return home
+}
+
+// appName returns the name of the application, with path stripped off, and all characters other than ASCII letters, numbers, or underscores, replaced by underscores.
+func appName() string {
+	return regexp.MustCompile("[^a-zA-Z0-9_]").ReplaceAllString(filepath.Base(os.Args[0]), "_")
 }
