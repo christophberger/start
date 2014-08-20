@@ -12,13 +12,15 @@
 // Use of this source code is governed by the BSD (3-Clause)
 // License that can be found in the LICENSE.txt file.
 //
-// This source code may use third-party source code whose
+// This source code imports third-party source code whose
 // licenses are provided in the respective license files.
 package start
 
 import (
-	flag "github.com/ogier/pflag"
 	"os"
+	"strings"
+
+	flag "github.com/ogier/pflag"
 )
 
 var cfg *ConfigFile
@@ -40,9 +42,12 @@ func Parse() error {
 	cfg = NewConfigFile(cfgFileName)
 	flag.VisitAll(func(f *flag.Flag) {
 		// first, set the values from the config file:
-		f.Value.Set(cfg.String(f.Name))
+		val := cfg.String(f.Name)
+		if len(val) > 0 {
+			f.Value.Set(val)
+		}
 		// then, find an apply environment variables:
-		envVar := os.Getenv(f.Name)
+		envVar := os.Getenv(strings.ToUpper(AppName() + "_" + f.Name))
 		if len(envVar) > 0 {
 			f.Value.Set(envVar)
 		}
