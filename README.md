@@ -64,7 +64,7 @@ Then (optionally, if not using commands as well) call
 (instead of pflag.Parse()) to initialize each variable from these sources, in the given order:
 
 1. From a commandline flag of the long or short name.
-2. From an environment variable named as &lt;APPLICATION&gt;_&lt;LONGNAME&gt;, if the commandline flag does not exist. (<APPLICATION> is the executable's name, and <LONGNAME> is the flag's long name.) [1]
+2. From an environment variable named as &lt;APPLICATION&gt;_&lt;LONGNAME&gt;, if the commandline flag does not exist. (<APPLICATION> is the executable's name (without extension, if any), and <LONGNAME> is the flag's long name.) [1]
 3. From an entry in the config file, if the environment variable does not exist.
 4. From the default value if the config file entry does not exist.
 
@@ -72,7 +72,7 @@ This way, you are free to decide whether to use a config file, environment varia
 
 And best of all, each setting has the same name in the config file, for the environment variable, and for the command line flag (but the latter can also have a short form).
 
-[1] Warning: If your application name contains characters other than a-zA-Z0-9_, then <APPLICATION> must be set to the application name where all special characters are replaced by an underscore. For example: If your executable is named "start.test", then the environment variable is expected to read START_TEST_CFGPATH.
+[1] NOTE: If your application name contains characters other than a-zA-Z0-9_, then <APPLICATION> must be set to the application name where all special characters are replaced by an underscore. For example: If your executable is named "start.test", then the environment variable is expected to read START_TEST_CFGPATH.
 
 ### Define commands:
 
