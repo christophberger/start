@@ -2,7 +2,7 @@
 // Use of this source code is governed by the BSD (3-Clause)
 // License that can be found in the LICENSE.txt file.
 //
-// This source code may use third-party source code whose
+// This source code imports third-party source code whose
 // licenses are provided in the respective license files.
 //
 // See the file README.md about usage of the start package.
@@ -41,32 +41,32 @@ func NewConfigFile(filename string) *ConfigFile {
 func (c *ConfigFile) String(name string) string {
 	value, exists := c.doc.GetValue(name)
 	if exists {
-		return value.AsString()
+		return value.String()
 	} else {
 		return ""
 	}
 }
 
-func (c *ConfigFile) findAndReadTomlFile(fileName string) error {
+func (c *ConfigFile) findAndReadTomlFile(name string) error {
 	var err error
 
-	// is fileName an absolute path? If so, go ahead and read the file.
-	if filepath.IsAbs(fileName) {
-		fileInfo, _ := os.Stat(fileName)
+	// is name an absolute path? If so, go ahead and read the file.
+	if filepath.IsAbs(name) {
+		fileInfo, _ := os.Stat(name)
 		if fileInfo.IsDir() {
-			c.doc, err = c.readTomlFile(filepath.Join(fileName, appName()+".toml"))
+			c.doc, err = c.readTomlFile(filepath.Join(name, AppName()+".toml"))
 		} else {
-			c.doc, err = c.readTomlFile(fileName)
+			c.doc, err = c.readTomlFile(name)
 		}
 		return err
 	}
 
 	// is the environment variable <APPNAME>_CFGPATH set
 	// (either to a dir path or to a file path)?
-	cfgPath := os.Getenv(strings.ToUpper(appName() + "_CFGPATH"))
+	cfgPath := os.Getenv(strings.ToUpper(AppName() + "_CFGPATH"))
 	if len(cfgPath) > 0 {
-		if len(fileName) > 0 {
-			cfgPath = filepath.Join(cfgPath, fileName)
+		if len(name) > 0 {
+			cfgPath = filepath.Join(cfgPath, name)
 		}
 		c.doc, err = c.readTomlFile(cfgPath)
 		if err == nil {
@@ -76,9 +76,9 @@ func (c *ConfigFile) findAndReadTomlFile(fileName string) error {
 
 	// environment variable is not set, or the config file was not found there,
 	// so get the user's home dir instead
-	cfgPath = getHomeDir()
+	cfgPath = GetHomeDir()
 	if len(cfgPath) > 0 {
-		c.doc, err = c.readTomlFile(filepath.Join(cfgPath, fileName))
+		c.doc, err = c.readTomlFile(filepath.Join(cfgPath, name))
 		if err == nil {
 			return nil
 		}
@@ -89,7 +89,7 @@ func (c *ConfigFile) findAndReadTomlFile(fileName string) error {
 	// so try the working dir instead
 	cfgPath, err = os.Getwd()
 	if err == nil {
-		c.doc, err = c.readTomlFile(filepath.Join(cfgPath, fileName))
+		c.doc, err = c.readTomlFile(filepath.Join(cfgPath, name))
 		return err
 	}
 	return err
@@ -104,7 +104,9 @@ func (c *ConfigFile) readTomlFile(path string) (toml.Document, error) {
 	return doc, errors.New("File not found: " + path)
 }
 
-func getHomeDir() string {
+// GetHomeDir finds the user's home directory in an OS-independent way.
+// "OS-independent" means compatible with most Unix-like operating systems as well as with Microsoft Windows(TM).
+func GetHomeDir() string {
 	// credits for this OS-independent solution go to http://stackoverflow.com/a/7922977
 	// (os.User is not an option here. It relies on CGO and thus prevents cross compiling.)
 	home := os.Getenv("HOMEDRIVE") + os.Getenv("HOMEPATH")
@@ -117,7 +119,16 @@ func getHomeDir() string {
 	return home
 }
 
-// appName returns the name of the application, with path stripped off, and all characters other than ASCII letters, numbers, or underscores, replaced by underscores.
-func appName() string {
-	return regexp.MustCompile("[^a-zA-Z0-9_]").ReplaceAllString(filepath.Base(os.Args[0]), "_")
+// AppName returns the name of the application, with path and extension stripped off,
+// and all characters other than ASCII letters, numbers, or underscores, replaced by
+// underscores.
+// Replacing special characters by underscores makes the returned name suitable for
+// being used in the name of an environment variable.
+func AppName() string {
+	fileName := filepath.Base(os.Args[0])
+	fileExt := filepath.Ext(fileName)
+	if len(fileExt) > 0 {
+		fileName = strings.Split(fileName, ".")[0]
+	}
+	return regexp.MustCompile("[^a-zA-Z0-9_]").ReplaceAllString(fileName, "_")
 }
