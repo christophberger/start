@@ -19,6 +19,16 @@ type Command struct {
 }
 
 // The list of top-level commands.
-type CommandList []Command
+type CommandMap map[string]*Command
 
-var Commands *CommandList
+var Commands CommandMap
+
+func (c *CommandMap) Add(cmd *Command) error {
+	(*c)[cmd.Name] = cmd
+	return nil // TODO
+}
+
+func (c *Command) Add(cmd *Command) error {
+	(*c).Children = append((*c).Children, cmd)
+	return nil // TODO
+}
