@@ -1,5 +1,7 @@
 package start
 
+import "errors"
+
 // A list of commands.
 type CommandMap map[string]*Command
 
@@ -14,7 +16,7 @@ type CommandMap map[string]*Command
 // For commands with child commands, Function is ignored.
 type Command struct {
 	Name     string
-	Children CommandMap
+	children CommandMap
 	Flags    []string
 	Short    string
 	Long     string
@@ -41,26 +43,40 @@ func (c *CommandMap) Add(cmd *Command) error {
 
 // Add for Command adds a subcommand do a command.
 func (c *Command) Add(cmd *Command) error {
-	if len((*c).Children) == 0 {
-		(*c).Children = make(CommandMap)
+	if len((*c).children) == 0 {
+		(*c).children = make(CommandMap)
 	}
-	(*c).Children[cmd.Name] = cmd
+	(*c).children[cmd.Name] = cmd
 	return nil // TODO
 }
 
+// checkAllowedFlags verifies if the flags passed on the command line
+// are accepted by the given command.
+// It returns a list of flags that the command has rejected,
+// for preparing a suitable error message.
 func checkAllowedFlags(c *Command) (wrongFlags []string) {
 	wrongFlags = []string{}
 	return
 }
 
-func getCommand(args []string, commands *CommandMap) *Command {
+// readCommand extracts the command (and any subcommand, if applicable) from the
+// list of arguments.
+// Parameter args is the list of arguments *after* being parsed by flag.Parse().
+// The first item of args is expected to be a command name. If that command has
+// subcommands defined, the second item must contain the name of a subcommand.
+func readCommand(args []string, commands *CommandMap) (*Command, error) {
 	var cmd *Command
+	var ok bool
 	var name = args[0]
-	if len((*commands)[name].Children) > 0 {
+	if len((*commands)[name].children) > 0 {
 		var subname = args[1]
-		cmd = (*commands)[name].Children[subname]
+		cmd, ok = (*commands)[name].children[subname]
 	} else {
-		cmd = (*commands)[name]
+		cmd, ok = (*commands)[name]
 	}
-	return cmd
+	if ok {
+		return cmd, nil
+	} else {
+		return cmd, errors.New("Unknown command: " + name)
+	}
 }
