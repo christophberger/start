@@ -1,8 +1,12 @@
 package start
 
 import (
+	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
+
+	flag "github.com/ogier/pflag"
 )
 
 // CommandMap represents a list of Command objects.
@@ -18,12 +22,13 @@ type CommandMap map[string]*Command // TODO: Make struct with Usage command
 // arguments (without the flags, which are parsed already).
 // For commands with child commands, Function is ignored.
 type Command struct {
-	Name  string
-	Flags []string
-	Short string
-	Long  string
-	Cmd   func(cmd *Command) error
-	Args  []string
+	Name   string
+	Parent string
+	Flags  []string
+	Short  string
+	Long   string
+	Cmd    func(cmd *Command) error
+	Args   []string
 
 	children CommandMap
 }
@@ -31,55 +36,116 @@ type Command struct {
 // Commands is the global command list.
 var Commands = make(CommandMap)
 
-// Add adds a command to the global command map Commands.
+// Description is a string used by the Usage command. It should be set to a description of the application before calling Up(). If a user runs the application with no arguments, Usage() will print this description string and list the available commands.
+var Description string
+
+// Add adds a command to either the global Commands map, or, if the command has a parent value, to its parent command as a subcommand.
 func Add(cmd *Command) error {
 	return Commands.Add(cmd)
 }
 
-// AddSub adds a subcommand to the global command list.
-func AddSub(parent string, cmd *Command) error {
-	return Commands[parent].Add(cmd)
-}
-
 // Add for CommandMap adds a command to a list of commands.
 func (c *CommandMap) Add(cmd *Command) error {
-	(*c)[cmd.Name] = cmd
-	return nil // TODO
+	if cmd == nil {
+		return errors.New("Add: Parameter cmd must not be nil.")
+	}
+	cmd.init()
+	if cmd.Parent == "" {
+		// Add a top-level command.
+		if _, alreadyExists := (*c)[cmd.Name]; alreadyExists {
+			return errors.New("Add: command " + cmd.Name + " already exists.")
+		}
+		(*c)[cmd.Name] = cmd
+		return nil
+	}
+	// Add a child command.
+	if _, ok := Commands[cmd.Parent]; ok == false {
+		return errors.New("Add: Parent command not found for subcommand " +
+			cmd.Name + ".")
+	}
+	return Commands[cmd.Parent].Add(cmd)
+
+	return nil
 }
 
 // Add for Command adds a subcommand do a command.
-func (c *Command) Add(cmd *Command) error {
-	if len((*c).children) == 0 {
-		(*c).children = make(CommandMap)
+func (parent *Command) Add(cmd *Command) error {
+	cmd.init()
+	parent.init()
+	if _, alreadyExists := (*parent).children[cmd.Name]; alreadyExists {
+		return errors.New("Add: subcommand " + cmd.Name +
+			" already exists for command " + parent.Name + ".")
 	}
-	(*c).children[cmd.Name] = cmd
-	return nil // TODO
+	(*parent).children[cmd.Name] = cmd
+	return nil
 }
 
+// Usage prints a description of the application and the short help string
+// of every command, when called with a nil argument.
+// When called with a command as parameter, Usage prints this command's
+// long help string as well as the short help strings of the available
+// subcommands.
 func Usage(cmd *Command) error {
 	if cmd == nil {
-		fmt.Println(os.Args[0])
+		fmt.Println()
+		fmt.Println(filepath.Base(os.Args[0]))
+		fmt.Println(Description)
+		fmt.Println()
 		if len(Commands) > 0 {
 			fmt.Println("Available commands:")
+			fmt.Println()
 			for _, c := range Commands {
+				fmt.Println(c.Name)
 				fmt.Println(c.Short)
 			}
 		}
 	} else {
-		fmt.Println("%v" + cmd.Name)
+		fmt.Println(cmd.Name)
 		fmt.Println(cmd.Long)
-		fmt.Println("Available flags:") // TODO
+		if len(cmd.Flags) > 0 {
+			if err := Parse(); err != nil {
+				return err
+			}
+			fmt.Println("Available flags:")
+			for _, flagName := range cmd.Flags {
+				fmt.Print("--" + flagName + ", ")
+				flg := flag.Lookup(flagName)
+				if flg == nil {
+					panic("Flag '" + flagName + "' does not exist.")
+				}
+				fmt.Println(flg.Shorthand + ": ")
+				fmt.Println(flg.Usage)
+			}
+		}
+		fmt.Println()
 	}
 	return nil
+}
+
+// initCommand initializes the children map.
+func (cmd *Command) init() *Command {
+	if len(cmd.children) == 0 {
+		cmd.children = make(CommandMap)
+	}
+	return cmd
+}
+
+// globalFlags identifies those flags that none of the commands
+// claims as its private flags.
+// It returns a slice with the names of the global flags.
+func globalFlags() []string {
+	return []string{} // TODO
 }
 
 // checkFlags verifies if the flags passed on the command line
 // are accepted by the given command.
 // It returns a list of flags that the command has rejected,
 // for preparing a suitable error message.
-func checkFlags(c *Command) (wrongFlags []string) {
-	wrongFlags = []string{}
-	return
+func checkFlags(c *Command) []string {
+	// TODO: find the flags that this command does not use for itself AND
+	// that are used by some other command -> These are not global flags,
+	// hence are not allowed with this command.
+	return []string{} // TODO
 }
 
 // readCommand extracts the command (and any subcommand, if applicable) from the
@@ -89,25 +155,37 @@ func checkFlags(c *Command) (wrongFlags []string) {
 // subcommands defined, the second item must contain the name of a subcommand.
 // If the first argument does not contain a valid command name, readCommand
 // returns the pre-defined help command.
-func readCommand(args []string) *Command {
-	cmd := &Command{}
+func readCommand(args []string) (*Command, error) {
+	var cmd, subcmd *Command
 	var ok bool
 	var name = args[0]
-	if _, ok = Commands[name]; ok {
+	if cmd, ok = Commands[name]; ok {
 		// command found. Remove it from the argument list.
 		args = args[1:]
-		if len(Commands[name].children) > 0 {
+		if len(cmd.children) > 0 {
 			var subname = args[0]
-			cmd, ok = Commands[name].children[subname]
+			subcmd, ok = cmd.children[subname]
 			if ok {
 				// subcommand found.
 				args = args[1:]
+				cmd = subcmd
+			} else {
+				// no subcommand passed in, so cmd should have a Cmd to execute
+				if cmd.Cmd == nil {
+					errmsg := "Command " + cmd.Name + " requires one of these subcommands: "
+					for _, n := range cmd.children {
+						errmsg += n.Name + ", "
+					}
+					return nil, errors.New(errmsg)
+				}
 			}
 		} else {
 			cmd = Commands[name]
 		}
 		cmd.Args = args
-		return cmd
+		return cmd, nil
 	}
-	return Commands["help"]
+	return &Command{
+		Cmd: Usage,
+	}, nil
 }
