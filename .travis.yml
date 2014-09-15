@@ -4,4 +4,5 @@ go:
   - tip
 
 install:
+  - go get -v ./...
   - go get github.com/smartystreets/goconvey/convey
