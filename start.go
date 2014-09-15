@@ -23,10 +23,13 @@ import (
 	flag "github.com/ogier/pflag"
 )
 
-var cfg *ConfigFile
-var cfgFileName string = ""
-var customName bool = false
+var cfgFile *ConfigFile
+var cfgFileName string
+var customName bool
+var alreadyParsed bool
 
+// UseConfigFile allows to set a custom file name and/or path.
+// Call this before Parse() or Up(), respectively. Afterwards it has of course no effect.
 func UseConfigFile(fn string) {
 	cfgFileName = fn
 	customName = true
@@ -38,11 +41,26 @@ func UseConfigFile(fn string) {
 // - from an environment variable, if the flag is not set, or
 // - from an entry in the config file, if the environment variable is not set, or
 // - from its default value, if there is no entry in the config file.
+// Note: For better efficiency, Parse reads the config file and environment variables only once. Subsequent calls do nothing, so you can call Parse() from multiple places in your code without actually repeating the complete parse process. Use Reparse() if you must execute the full parse process again.
+// This behavior diverges from the behavior of flag.Parse(), which parses always.
 func Parse() error {
-	cfg = NewConfigFile(cfgFileName)
+	if alreadyParsed {
+		flag.Parse()
+		return nil
+	}
+	return parse()
+}
+
+// Reparse is the same as Parse but parses always.
+func Reparse() error {
+	return parse()
+}
+
+func parse() error {
+	cfgFile, _ = NewConfigFile(cfgFileName)
 	flag.VisitAll(func(f *flag.Flag) {
 		// first, set the values from the config file:
-		val := cfg.String(f.Name)
+		val := cfgFile.String(f.Name)
 		if len(val) > 0 {
 			f.Value.Set(val)
 		}
@@ -57,6 +75,15 @@ func Parse() error {
 	return nil
 }
 
+// Up parses all flags and then evaluates and executes the command line.
 func Up() error {
-	return nil
+	err := Parse()
+	if err != nil {
+		return err
+	}
+	cmd, err := readCommand(flag.Args())
+	if err != nil {
+		return err
+	}
+	return cmd.Cmd(cmd)
 }
