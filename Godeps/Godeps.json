@@ -1,0 +1,23 @@
+{
+	"ImportPath": "github.com/christophberger/start",
+	"GoVersion": "go1.3.1",
+	"Deps": [
+		{
+			"ImportPath": "github.com/jacobsa/oglematchers",
+			"Rev": "4fc24f97b5b74022c2a3f4ca7eed57ca29083d3e"
+		},
+		{
+			"ImportPath": "github.com/laurent22/toml-go",
+			"Rev": "b5fb85d2a97f5203cf10529b62eb119bacca55f6"
+		},
+		{
+			"ImportPath": "github.com/ogier/pflag",
+			"Rev": "e4f7d00f344b0954fa3791a8527d10ba7334eceb"
+		},
+		{
+			"ImportPath": "github.com/smartystreets/goconvey/convey",
+			"Comment": "1.5.0-254-g627707e",
+			"Rev": "627707e8db4a4e52f4e1fbbb4e10d98e79a3c946"
+		}
+	]
+}
