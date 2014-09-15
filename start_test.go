@@ -11,7 +11,7 @@ import (
 
 func TestParse(t *testing.T) {
 	// ContinueOnError is required when running goconvey as server; otherwise, unrecognized
-	// variables are passed to the test executable, causing an error:
+	// flags that are passed to the test executable will cause an error:
 	// "unknown shorthand flag: 't' in -test.v=true"
 	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
 
@@ -23,7 +23,7 @@ func TestParse(t *testing.T) {
 		UseConfigFile("test/test.toml")
 		os.Setenv("START_ASTRING", "From Environment Variable")
 		Parse()
-		Convey("Then Parse() should find the correct values from config file, env var, or default. (command line flags not testable with automated calls to go test)", func() {
+		Convey("Then Parse() should find the correct values from config file, env var, or default. (Restriction: passing the command line flags is not possible with automated calls to go test)", func() {
 			So(stringFlag, ShouldEqual, "From Environment Variable")
 			So(*intFlag, ShouldEqual, 42)    // from config file
 			So(*boolFlag, ShouldEqual, true) // from default
