@@ -36,7 +36,7 @@ func TestConfigFile(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		Convey("then NewConfigFile loads "+tomlfile+" and returns a new ConfigFile", func() {
-			cfg := NewConfigFile(tomlfile)
+			cfg, _ := NewConfigFile(tomlfile)
 			So(cfg, ShouldNotBeNil)
 		})
 
@@ -47,7 +47,7 @@ func TestConfigFile(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		Convey("then NewConfigFile loads start.toml from that directory and returns a new ConfigFile", func() {
-			cfg := NewConfigFile(tomlfile)
+			cfg, _ := NewConfigFile(tomlfile)
 			So(cfg, ShouldNotBeNil)
 			Convey("and AppName() should return start", func() {
 				So(AppName(), ShouldEqual, "start")
@@ -56,17 +56,11 @@ func TestConfigFile(t *testing.T) {
 	})
 
 	Convey("When passing just a file name to NewConfigFile", t, func() {
-		tomlname := "custom.toml"
+		tomlname := "test.toml"
 		var tomlpath string
 
 		Convey("and the file exists in the home directory", func() {
-			home := os.Getenv("HOMEDRIVE") + os.Getenv("HOMEPATH")
-			if home == "" {
-				home = os.Getenv("USERPROFILE")
-			}
-			if home == "" {
-				home = os.Getenv("HOME")
-			}
+			home := GetHomeDir()
 			tomlpath = filepath.Join(home, tomlname)
 			_, err := os.Create(tomlpath)
 			if err != nil {
@@ -74,16 +68,16 @@ func TestConfigFile(t *testing.T) {
 			}
 
 			Convey("then NewConfigFile should find the file", func() {
-				cfg := NewConfigFile(tomlname)
+				cfg, _ := NewConfigFile(tomlname)
 				So(cfg, ShouldNotBeNil)
 			})
 		})
 
-		Convey("and the file is specified by the env var START_CFGPATH", func() {
-			os.Setenv("START_CFGPATH", "test/test.toml")
+		Convey("and the directory is specified by the env var START_CFGPATH", func() {
+			os.Setenv("START_CFGPATH", "test")
 
 			Convey("then NewConfigFile should find the file", func() {
-				cfg := NewConfigFile("")
+				cfg, _ := NewConfigFile(tomlname)
 				So(cfg, ShouldNotBeNil)
 			})
 
@@ -95,7 +89,51 @@ func TestConfigFile(t *testing.T) {
 			os.Create(tomlpath)
 
 			Convey("then NewConfigFile should find the file", func() {
-				cfg := NewConfigFile(tomlname)
+				cfg, _ := NewConfigFile(tomlname)
+				So(cfg, ShouldNotBeNil)
+			})
+		})
+
+		Reset(func() {
+			os.Remove(tomlpath)
+			os.Setenv("START_CFGPATH", "")
+		})
+	})
+
+	Convey("When passing no file name to NewConfigFile", t, func() {
+		var tomlpath string
+
+		Convey("and the file '.start' exists in the home directory", func() {
+			home := GetHomeDir()
+			tomlpath = filepath.Join(home, ".start")
+			_, err := os.Create(tomlpath)
+			if err != nil {
+				panic(err)
+			}
+
+			Convey("then NewConfigFile should find the file", func() {
+				cfg, _ := NewConfigFile("")
+				So(cfg, ShouldNotBeNil)
+			})
+		})
+
+		Convey("and the file is specified by the env var START_CFGPATH", func() {
+			os.Setenv("START_CFGPATH", "test/test.toml")
+
+			Convey("then NewConfigFile should find the file", func() {
+				cfg, _ := NewConfigFile("")
+				So(cfg, ShouldNotBeNil)
+			})
+
+		})
+
+		Convey("and the file 'start.toml' is in the working directory", func() {
+			wd, _ := os.Getwd()
+			tomlpath = filepath.Join(wd, "start.toml")
+			os.Create(tomlpath)
+
+			Convey("then NewConfigFile should find the file", func() {
+				cfg, _ := NewConfigFile("")
 				So(cfg, ShouldNotBeNil)
 			})
 		})
