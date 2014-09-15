@@ -3,6 +3,8 @@ Start
 
 Start [Go](http://golang.org) command line apps with ease
 
+[![Build Status](https://travis-ci.org/christophberger/start.svg)](https://travis-ci.org/christophberger/start)
+[![3-clause BSD License](http://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](http://opensource.org/licenses/BSD-3-Clause)
 
 Status
 ------
