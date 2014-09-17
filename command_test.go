@@ -93,8 +93,7 @@ func TestCommands(t *testing.T) {
 			Name:  "flags",
 			Flags: []string{"yes", "size"},
 			Short: "A test command with flags",
-			Long: `Command flags helps testing flags.
-It accepts the flags --yes and --size.`,
+			Long:  "Command flags helps testing flags.",
 			Cmd: func(cmd *Command) error {
 				fmt.Println("This is the testflags command.")
 				fmt.Println("--yes is %v", yes)
@@ -105,7 +104,7 @@ It accepts the flags --yes and --size.`,
 
 		Add(&Command{
 			Name:  "do",
-			Short: "A command with subcommands: something, nothing.",
+			Short: "A command with subcommands",
 			Long: `Command do helps testing subcommands.
 Usage:
 	do something
