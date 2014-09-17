@@ -15,12 +15,13 @@ type CommandMap map[string]*Command // TODO: Make struct with Usage command
 // Command defines a command or a subcommand.
 // Flags is a list of flag names that the command accepts.
 // If a flag is passed to the command that the command does not accept,
-// then Up() returns an error. If Flags is empty, all flags are allowed.
+// and if that flag is not among the global flags available for all commands,
+// then Up() returns an error. If Flags is empty, all global flags are allowed.
 // ShortHelp contains a short help string that is used in --help.
 // LongHelp contains a usage description that is used in --help <command>.
-// Function contains the function to execute. It receives the list of
+// Cmd contains the function to execute. It receives the list of
 // arguments (without the flags, which are parsed already).
-// For commands with child commands, Function is ignored.
+// For commands with child commands, Cmd can be left empty.
 type Command struct {
 	Name   string
 	Parent string
@@ -92,11 +93,11 @@ func Usage(cmd *Command) error {
 		fmt.Println(Description)
 		fmt.Println()
 		if len(Commands) > 0 {
+			width := maxCmdNameLen()
 			fmt.Println("Available commands:")
 			fmt.Println()
 			for _, c := range Commands {
-				fmt.Println(c.Name)
-				fmt.Println(c.Short)
+				fmt.Printf("%-*s  %s\n", width, c.Name, c.Short)
 			}
 		}
 	} else {
@@ -106,20 +107,43 @@ func Usage(cmd *Command) error {
 			if err := Parse(); err != nil {
 				return err
 			}
+			fmt.Println()
 			fmt.Println("Available flags:")
+			fmt.Println()
+			flagList := [][]string{}
+			var flagNamesAndDefault string
+			var width int
 			for _, flagName := range cmd.Flags {
-				fmt.Print("--" + flagName + ", ")
 				flg := flag.Lookup(flagName)
 				if flg == nil {
 					panic("Flag '" + flagName + "' does not exist.")
 				}
-				fmt.Println(flg.Shorthand + ": ")
-				fmt.Println(flg.Usage)
+				flagNamesAndDefault = fmt.Sprintf("-%s, --%s=%s", flg.Shorthand, flagName, flg.Value)
+				if width < len(flagNamesAndDefault) {
+					width = len(flagNamesAndDefault)
+				}
+				flagList = append(flagList, []string{flagNamesAndDefault, flg.Usage})
+			}
+			for _, flg := range flagList {
+				fmt.Printf("%-*s  %s\n", width, flg[0], flg[1])
+
 			}
 		}
-		fmt.Println()
 	}
+	fmt.Println()
 	return nil
+}
+
+// maxCmdNameLen returns the length of the longest command name.
+func maxCmdNameLen() int {
+	maxLength := 0
+	for _, cmd := range Commands {
+		length := len(cmd.Name)
+		if length > maxLength {
+			maxLength = length
+		}
+	}
+	return maxLength
 }
 
 // initCommand initializes the children map.
