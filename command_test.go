@@ -173,3 +173,15 @@ Usage:
 	})
 
 }
+
+func TestCheckFlags(t *testing.T) {
+
+	SkipConvey("Given two commands with overlapping flag sets", t, func() {
+		Convey("Each should accept its own flags", func() {
+			// TODO
+		})
+		Convey("Each should reject the flags that belong to the other command only", func() {
+			// TODO
+		})
+	})
+}
