@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/davecgh/go-spew/spew"
 	flag "github.com/ogier/pflag"
 )
 
@@ -65,19 +66,17 @@ func (c *CommandMap) Add(cmd *Command) error {
 			cmd.Name + ".")
 	}
 	return Commands[cmd.Parent].Add(cmd)
-
-	return nil
 }
 
 // Add for Command adds a subcommand do a command.
-func (parent *Command) Add(cmd *Command) error {
+func (cmd *Command) Add(subcmd *Command) error {
 	cmd.init()
-	parent.init()
-	if _, alreadyExists := (*parent).children[cmd.Name]; alreadyExists {
-		return errors.New("Add: subcommand " + cmd.Name +
-			" already exists for command " + parent.Name + ".")
+	subcmd.init()
+	if _, alreadyExists := (*cmd).children[subcmd.Name]; alreadyExists {
+		return errors.New("Add: subcommand " + subcmd.Name +
+			" already exists for command " + cmd.Name + ".")
 	}
-	(*parent).children[cmd.Name] = cmd
+	(*cmd).children[subcmd.Name] = subcmd
 	return nil
 }
 
@@ -154,11 +153,20 @@ func (cmd *Command) init() *Command {
 	return cmd
 }
 
-// globalFlags identifies those flags that none of the commands
-// claims as its private flags.
-// It returns a slice with the names of the global flags.
-func globalFlags() []string {
-	return []string{} // TODO
+// anotherCommandsFlags identifies those flags that are
+// another command's flags.
+// It returns a slice with the names of these flags.
+func anotherCommandsFlags(c *Command) []string {
+	flags := make([]string, 10) // TODO: arbitrary len
+	for _, cmd := range Commands {
+		if cmd != c {
+			for _, flg := range cmd.Flags {
+				flags = append(flags, flg)
+			}
+		}
+	}
+	spew.Dump(flags)
+	return flags
 }
 
 // checkFlags verifies if the flags passed on the command line
@@ -169,6 +177,23 @@ func checkFlags(c *Command) []string {
 	// TODO: find the flags that this command does not use for itself AND
 	// that are used by some other command -> These are not global flags,
 	// hence are not allowed with this command.
+	rejectedFlags := make([]string, 10)
+	otherFlags := anotherCommandsFlags(c)
+	flag.Visit(func(f *flag.Flag) {
+		isMyFlag := false
+		for _, myFlag := range c.Flags {
+			if f.Name == myFlag {
+				isMyFlag = true
+			}
+		}
+		if isMyFlag == false {
+			for _, otherFlag := range otherFlags {
+				if f.Name == otherFlag {
+					rejectedFlags = append(rejectedFlags, otherFlag)
+				}
+			}
+		}
+	})
 	return []string{} // TODO
 }
 
@@ -207,6 +232,7 @@ func readCommand(args []string) (*Command, error) {
 			cmd = Commands[name]
 		}
 		cmd.Args = args
+		checkFlags(cmd)
 		return cmd, nil
 	}
 	return &Command{
