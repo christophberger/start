@@ -180,13 +180,13 @@ func checkFlags(c *Command) []string {
 	rejectedFlags := make([]string, 10)
 	otherFlags := anotherCommandsFlags(c)
 	flag.Visit(func(f *flag.Flag) {
-		isMyFlag := false
+		isNotMyFlag := true
 		for _, myFlag := range c.Flags {
 			if f.Name == myFlag {
-				isMyFlag = true
+				isNotMyFlag = false
 			}
 		}
-		if isMyFlag == false {
+		if isNotMyFlag {
 			for _, otherFlag := range otherFlags {
 				if f.Name == otherFlag {
 					rejectedFlags = append(rejectedFlags, otherFlag)
@@ -194,7 +194,7 @@ func checkFlags(c *Command) []string {
 			}
 		}
 	})
-	return []string{} // TODO
+	return rejectedFlags
 }
 
 // readCommand extracts the command (and any subcommand, if applicable) from the
