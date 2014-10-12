@@ -6,7 +6,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/davecgh/go-spew/spew"
 	flag "github.com/ogier/pflag"
 )
 
@@ -85,10 +84,12 @@ func (cmd *Command) Add(subcmd *Command) error {
 // When called with a command as parameter, Usage prints this command's
 // long help string as well as the short help strings of the available
 // subcommands.
+// Parse() or Up() must be called before invoking Usage().
 func Usage(cmd *Command) error {
 	if cmd == nil {
 		fmt.Println()
 		fmt.Println(filepath.Base(os.Args[0]))
+		fmt.Println()
 		fmt.Println(Description)
 		fmt.Println()
 		if len(Commands) > 0 {
@@ -99,38 +100,49 @@ func Usage(cmd *Command) error {
 				fmt.Printf("%-*s  %s\n", width, c.Name, c.Short)
 			}
 		}
+		globalFlags := checkFlags(nil)
+		if len(globalFlags) > 0 {
+			fmt.Println("Available global flags:")
+			flagUsage(nil)
+		}
 	} else {
-		fmt.Println(cmd.Name)
-		fmt.Println(cmd.Long)
+		if cmd.Parent != "" {
+			fmt.Printf("%v ", cmd.Parent)
+		}
+		fmt.Printf("%v\n\n%v\n", cmd.Name, cmd.Long)
 		if len(cmd.Flags) > 0 {
 			if err := Parse(); err != nil {
 				return err
 			}
 			fmt.Println()
-			fmt.Println("Available flags:")
+			fmt.Println("Command-specific flags:")
 			fmt.Println()
-			flagList := [][]string{}
-			var flagNamesAndDefault string
-			var width int
-			for _, flagName := range cmd.Flags {
-				flg := flag.Lookup(flagName)
-				if flg == nil {
-					panic("Flag '" + flagName + "' does not exist.")
-				}
-				flagNamesAndDefault = fmt.Sprintf("-%s, --%s=%s", flg.Shorthand, flagName, flg.Value)
-				if width < len(flagNamesAndDefault) {
-					width = len(flagNamesAndDefault)
-				}
-				flagList = append(flagList, []string{flagNamesAndDefault, flg.Usage})
-			}
-			for _, flg := range flagList {
-				fmt.Printf("%-*s  %s\n", width, flg[0], flg[1])
-
-			}
+			flagUsage(cmd.Flags)
 		}
 	}
 	fmt.Println()
 	return nil
+}
+
+func flagUsage(flagNames []string) {
+	flagUsageList := [][]string{}
+	var flagNamesAndDefault string
+	var width int
+	for _, flagName := range flagNames {
+		flg := flag.Lookup(flagName)
+		if flg == nil {
+			panic("Flag '" + flagName + "' does not exist.")
+		}
+		flagNamesAndDefault = fmt.Sprintf("-%s, --%s=%s", flg.Shorthand, flagName, flg.Value)
+		if width < len(flagNamesAndDefault) {
+			width = len(flagNamesAndDefault)
+		}
+		flagUsageList = append(flagUsageList, []string{flagNamesAndDefault, flg.Usage})
+	}
+	for _, flg := range flagUsageList {
+		fmt.Printf("%-*s  %s\n", width, flg[0], flg[1])
+
+	}
 }
 
 // maxCmdNameLen returns the length of the longest command name.
@@ -156,44 +168,45 @@ func (cmd *Command) init() *Command {
 // anotherCommandsFlags identifies those flags that are
 // another command's flags.
 // It returns a slice with the names of these flags.
-func anotherCommandsFlags(c *Command) []string {
-	flags := make([]string, 10) // TODO: arbitrary len
+// If c is nil, the slice contains the name of all
+// command-specific flags.
+func getFlagsOfOtherCommands(c *Command) map[string]bool {
+	flags := make(map[string]bool)
 	for _, cmd := range Commands {
 		if cmd != c {
 			for _, flg := range cmd.Flags {
-				flags = append(flags, flg)
+				flags[flg] = true
 			}
 		}
 	}
-	spew.Dump(flags)
 	return flags
 }
 
-// checkFlags verifies if the flags passed on the command line
-// are accepted by the given command.
-// It returns a list of flags that the command has rejected,
-// for preparing a suitable error message.
-func checkFlags(c *Command) []string {
-	// TODO: find the flags that this command does not use for itself AND
-	// that are used by some other command -> These are not global flags,
-	// hence are not allowed with this command.
-	rejectedFlags := make([]string, 10)
-	otherFlags := anotherCommandsFlags(c)
+// checkFlags receives a Command and returns a list of flags that the
+// command has rejected.
+// If the Command is nil, then checkFlags returns all global flags.
+func checkFlags(c *Command) map[string]bool {
+	rejectedFlags := make(map[string]bool) // TODO -> map
+	otherFlags := getFlagsOfOtherCommands(c)
 	flag.Visit(func(f *flag.Flag) {
 		isNotMyFlag := true
-		for _, myFlag := range c.Flags {
-			if f.Name == myFlag {
-				isNotMyFlag = false
+		if c != nil {
+			for _, myFlag := range c.Flags {
+				if f.Name == myFlag {
+					isNotMyFlag = false // yes, f is among my flags
+				}
 			}
 		}
 		if isNotMyFlag {
-			for _, otherFlag := range otherFlags {
+			for otherFlag, _ := range otherFlags {
 				if f.Name == otherFlag {
-					rejectedFlags = append(rejectedFlags, otherFlag)
+					rejectedFlags[otherFlag] = true
 				}
 			}
 		}
 	})
+	if c != nil {
+	}
 	return rejectedFlags
 }
 
@@ -232,7 +245,11 @@ func readCommand(args []string) (*Command, error) {
 			cmd = Commands[name]
 		}
 		cmd.Args = args
-		checkFlags(cmd)
+		rejectedFlags := checkFlags(cmd)
+		if len(rejectedFlags) > 0 {
+			errmsg := fmt.Sprintf("Unknown flags: %v", rejectedFlags)
+			return nil, errors.New(errmsg)
+		}
 		return cmd, nil
 	}
 	return &Command{
