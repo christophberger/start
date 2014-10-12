@@ -235,10 +235,10 @@ func TestCheckFlags(t *testing.T) {
 	Convey("A command should reject the flags that belong to the other command only", t, func() {
 		rejectedFlags := checkFlags(Commands["cmd23"])
 		So(len(rejectedFlags), ShouldEqual, 1)
-		So(rejectedFlags[0], ShouldEqual, "first")
+		So(rejectedFlags["first"], ShouldEqual, true)
 
 		rejectedFlags = checkFlags(Commands["cmd12"])
 		So(len(rejectedFlags), ShouldEqual, 1)
-		So(rejectedFlags[0], ShouldEqual, "third")
+		So(rejectedFlags["third"], ShouldEqual, true)
 	})
 }
