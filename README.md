@@ -8,13 +8,13 @@ Start [Go](http://golang.org) command line apps with ease
 
 Status
 ------
-v0.1.1-alpha.  
+v0.2.0  
 Parse() implemented.  
-TODO: Implement commands, subcommands, and Up().  
+Commands, subcommands, and Up() implemented.  
 
 
-Executive Summary
------------------
+Executive Summary (or: TL;DR)
+-----------------------------
 
 The *start* package for Go provides two basic features for command line applications:
 
