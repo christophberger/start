@@ -64,13 +64,22 @@ func TestCommands(t *testing.T) {
 	// flags that are passed to the test executable will cause an error:
 	// "unknown shorthand flag: 't' in -test.v=true"
 	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
+	// To suppress warnings resulting from standard flags -test and -json,
+	// read -t and -j into dummy flags.
+	// The flags used for actual testing must not use -t or -j shorthands.
+	var testflag string
+	var jsonflag string
+	flag.StringVarP(&testflag, "t", "t", "t", "t")
+	flag.StringVarP(&jsonflag, "j", "j", "j", "j")
 
 	flag.BoolVarP(&yes, "yes", "y", false, "A boolean flag")
 	flag.IntVarP(&size, "size", "s", 23, "An int flag")
 
-	Commands = make(CommandMap)
+	Commands = make(CommandMap) // Ensure the Commands map starts empty for the test
 
-	Convey("The flags should exist", t, func() {
+	os.Args = []string{os.Args[0]}
+
+	Convey("Ensure that the test flags exist", t, func() {
 		Parse()
 		So(flag.Lookup("yes").Name, ShouldEqual, "yes")
 		So(flag.Lookup("size").Name, ShouldEqual, "size")
@@ -96,8 +105,8 @@ func TestCommands(t *testing.T) {
 			Long:  "Command flags helps testing flags.",
 			Cmd: func(cmd *Command) error {
 				fmt.Println("This is the testflags command.")
-				fmt.Println("--yes is %v", yes)
-				fmt.Println("--size is %v", size)
+				fmt.Printf("--yes is %v", yes)
+				fmt.Printf("--size is %v", size)
 				return nil
 			},
 		})
@@ -137,16 +146,19 @@ Usage:
 
 		Convey("readCommand should identify all of them correctly", func() {
 			cmd, err := readCommand([]string{"test", "arg1", "arg2"})
+			So(cmd, ShouldNotBeNil)
 			So(cmd.Name, ShouldEqual, "test")
 			So(cmd.Args, ShouldResemble, []string{"arg1", "arg2"})
 			So(err, ShouldBeNil)
 
 			cmd, err = readCommand([]string{"do", "something", "arg1"})
+			So(cmd, ShouldNotBeNil)
 			So(cmd.Name, ShouldEqual, "something")
 			So(cmd.Args, ShouldResemble, []string{"arg1"})
 			So(err, ShouldBeNil)
 
 			cmd, err = readCommand([]string{"do", "nothing"})
+			So(cmd, ShouldNotBeNil)
 			So(cmd.Name, ShouldEqual, "nothing")
 			So(cmd.Args, ShouldResemble, []string{})
 			So(err, ShouldBeNil)
@@ -154,6 +166,7 @@ Usage:
 
 		Convey("readCommand should return the Usage command if no valid command was passed in", func() {
 			cmd, err := readCommand([]string{"invalid", "arg1"})
+			So(cmd, ShouldNotBeNil)
 			So(cmd.Cmd, ShouldEqual, Usage)
 			So(err, ShouldBeNil)
 		})
@@ -175,13 +188,57 @@ Usage:
 }
 
 func TestCheckFlags(t *testing.T) {
+	var first int
+	var second int
+	var third int
+	var global int
 
-	SkipConvey("Given two commands with overlapping flag sets", t, func() {
-		Convey("Each should accept its own flags", func() {
-			// TODO
-		})
-		Convey("Each should reject the flags that belong to the other command only", func() {
-			// TODO
-		})
+	// ContinueOnError is required when running goconvey as server; otherwise, unrecognized
+	// flags that are passed to the test executable will cause an error:
+	// "unknown shorthand flag: 't' in -test.v=true"
+	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
+	// To suppress warnings resulting from standard flags -test and -json,
+	// read -t and -j into dummy flags.
+	// The flags used for actual testing must not use -t or -j shorthands.
+	var testflag string
+	var jsonflag string
+	flag.StringVarP(&testflag, "t", "t", "t", "t")
+	flag.StringVarP(&jsonflag, "j", "j", "j", "j")
+
+	flag.IntVarP(&first, "first", "f", 1, "The first flag")
+	flag.IntVarP(&second, "second", "s", 2, "The second flag")
+	flag.IntVarP(&third, "third", "h", 3, "The third flag")
+	flag.IntVarP(&global, "global", "g", 4, "The global flag")
+
+	os.Args = []string{os.Args[0], "--first=10", "--second=20", "--third=30", "--global=40", "anargument", "anotherarg"}
+
+	Commands = make(CommandMap) // clear the commands map for this test
+	Add(&Command{
+		Name:  "cmd12",
+		Flags: []string{"first", "second"},
+	})
+	Add(&Command{
+		Name:  "cmd23",
+		Flags: []string{"second", "third"},
+	})
+	Add(&Command{
+		Name:  "cmd123",
+		Flags: []string{"first", "second", "third"},
+	})
+
+	Parse()
+
+	Convey("A command should accept its own flags and all global flags", t, func() {
+		rejectedFlags := checkFlags(Commands["cmd123"])
+		So(len(rejectedFlags), ShouldEqual, 0)
+	})
+	Convey("A command should reject the flags that belong to the other command only", t, func() {
+		rejectedFlags := checkFlags(Commands["cmd23"])
+		So(len(rejectedFlags), ShouldEqual, 1)
+		So(rejectedFlags[0], ShouldEqual, "first")
+
+		rejectedFlags = checkFlags(Commands["cmd12"])
+		So(len(rejectedFlags), ShouldEqual, 1)
+		So(rejectedFlags[0], ShouldEqual, "third")
 	})
 }
