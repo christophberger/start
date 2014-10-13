@@ -8,15 +8,9 @@ Start [Go](http://golang.org) command line apps with ease
 
 Status
 ------
-<<<<<<< HEAD
-v0.1.0-alpha.
-Parse() implemented.
-TODO: Implement commands, subcommands, and Up().
-=======
 v0.2.0  
 Parse() implemented.  
 Commands, subcommands, and Up() implemented.  
->>>>>>> feature/Command
 
 
 Executive Summary (or: TL;DR)
