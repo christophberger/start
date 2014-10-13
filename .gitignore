@@ -19,5 +19,14 @@ _cgo_export.*
 
 _testmain.go
 
+# VIM internal files
+*.vim
+*.bak
+*.swp
+*.swo
+*.swn
+*.swm
+
 *.exe
 *.test
+todo.md
