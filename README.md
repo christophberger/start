@@ -62,9 +62,9 @@ import (
 Define your application settings like you would define flags with the flag or [pflag](https://github.com/ogier/pflag) packages:
 
 ```go
-var ip *int = start.Int("intname", "n", 1234, "help message")
-var sp *string = start.String("strname", "s", "default", "help message")
-var bp *bool = start.Bool("boolname", "b", "help message") // default is false if boolean flag is missing
+var ip *int = flag.Int("intname", "n", 1234, "help message")
+var sp *string = flag.String("strname", "s", "default", "help message")
+var bp *bool = flag.Bool("boolname", "b", "help message") // default is false if boolean flag is missing
 
 var flagvar int
 flag.IntVar(&flagvar, "flagname", 1234, "help message")
@@ -130,6 +130,7 @@ start.Up()
 ```
 
 This method calls `start.Parse()` and then executes the given command.
+The command receives its originating Command as input can access `cmd.Args` (a string array) to get all parameters (minus the flags)
 
 
 ### Notes about the config file
@@ -193,11 +194,11 @@ $ export GOTRANSLATE_VOICE = Sepp
 Define the global variables in your code, just as you would do with the flag or (as in the below example) [pflag](https://github.com/ogier/pflag) packages:
 
 ```go
-tlp := flag.StringP("targetlang", "t", "danish", "The language to translate into")
+tl := flag.StringP("targetlang", "t", "danish", "The language to translate into")
 var sl string
 flag.StringVarP("sourcelang", "s", "english_uk", "The language to translate from")
-vp := flag.StringP("voice", "v", "Homer", "The voice used for text-to-speech")
-sp := flag.BoolP("speak", "p", false, "Speak out the translated string")
+v := flag.StringP("voice", "v", "Homer", "The voice used for text-to-speech")
+speak := flag.BoolP("speak", "p", false, "Speak out the translated string")
 ```
 
 Define and implement some commands:
@@ -238,25 +239,25 @@ func main() {
 }
 
 
-func translate(c *Command) error {
-	source := flag.Arg(1)
+func translate(cmd *Command) error {
+	source := cmd.Args[0]
 
-	target := google.Translate(sl, source, &tlp)  // this is completely made up
+	target := google.Translate(sl, source, &tl)  // this is completely made up
 
-	if &sp {
-		apple.VoiceKit.SpeakOutString(target).WithVoice(&vp)  // this also
+	if speak {
+		apple.VoiceKit.SpeakOutString(target).WithVoice(v)  // this also
 	}
 	return nil
 }
 
-func checkstyle(c *Command) error  {
-	source := flag.Arg(1)
+func checkstyle(cmd *Command) error  {
+	source := cmd.Args[0]
 	stdout.Println(office.StyleChecker(source))  // also made up
 	return nil
 }
 
-func checkspelling(c *Command) error {
-	source := flag.Arg(1)
+func checkspelling(cmd *Command) error {
+	source := cmd.Args[0]
 	stdout.Println(aspell.Check(source))  // just fantasy
 	return nil
 }
