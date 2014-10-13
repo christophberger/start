@@ -7,8 +7,6 @@ Changelog
 
 Parse() implemented (passing all tests).
 
-<<<<<<< HEAD
-=======
 ### 0.1.1
 
 Fix: Case & tests for empty file name
@@ -17,4 +15,3 @@ Fix: Case & tests for empty file name
 -----
 
 Added: Command & Subcommand handling, Up() (passing all tests.)
->>>>>>> feature/Command
