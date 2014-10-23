@@ -16,7 +16,7 @@ Commands, subcommands, and Up() implemented.
 Executive Summary (or: TL;DR)
 -----------------------------
 
-The *start* package for Go provides two basic features for command line applications:
+The _start_ package for Go provides two basic features for command line applications:
 
 1. Read your application settings transparently from either  
 	- command line flags,  
@@ -33,7 +33,7 @@ The *start* package for Go provides two basic features for command line applicat
 Motivation
 ----------
 
-I built the *start* package mainly because existing flag packages do not provide any option for getting default values from environment variables or from a config file (let alone in a transparent way). And I decided to include command and subcommand parsing as well, making this package a complete "starter kit".
+I built the _start_ package mainly because existing flag packages do not provide any option for getting default values from environment variables or from a config file (let alone in a transparent way). And I decided to include command and subcommand parsing as well, making this package a complete "starter kit".
 
 
 Requirements
@@ -81,7 +81,7 @@ start.Parse()
 (instead of pflag.Parse()) to initialize each variable from these sources, in the given order:
 
 1. From a commandline flag of the long or short name.
-2. From an environment variable named as &lt;APPLICATION&gt;_&lt;LONGNAME&gt;, if the commandline flag does not exist. (&lt;APPLICATION&gt; is the executable's name (without extension, if any), and &lt;LONGNAME&gt; is the flag's long name.) [1]
+2. From an environment variable named as &lt;APPLICATION&gt;&#95;&lt;LONGNAME&gt;, if the commandline flag does not exist. (&lt;APPLICATION&gt; is the executable's name (without extension, if any), and &lt;LONGNAME&gt; is the flag's long name.) [1]
 3. From an entry in the config file, if the environment variable does not exist.
 4. From the default value if the config file entry does not exist.
 
@@ -93,10 +93,10 @@ And best of all, each setting has the same name in the config file, for the envi
 
 ### Define commands:
 
-Use Commands.Add() to define a new command. Pass the name, a short and a long help message, optionally a list of command-specific flag names, and the function to call.
+Use Add() to define a new command. Pass the name, a short and a long help message, optionally a list of command-specific flag names, and the function to call.
 
 ```go
-Commands.Add(&Command{
+start.Add(&Command{
 		Name:  "command",
 		Short: "short help message",
 		Long:  "long help for 'help command'",
@@ -107,21 +107,24 @@ Commands.Add(&Command{
 })
 ```
 
-The Cmd function receives its Command struct. It can get the command line via `flag.Args()` or `flag.Arg(n)`, where n is between 0 and `flag.NArg()-1`.
+The Cmd function receives its Command struct. It can get the command line via the `cmd.Args` slice.
 
-Define subcommands in the same way through SubCommand:
-
-```go
-start.SubCommand("parent", "command", "short help", "long help", commandFunc)
-```
-
-The parent command then needs no own commandFunc:
+Define subcommands in the same way but add the name of the parent command:
 
 ```go
-start.Command("parent", "short help", "long help")
+start.Add(&Command{
+		Name:  "command",
+		Parent: "parentcmd"
+		Short: "short help message",
+		Long:  "long help for 'help command'",
+		Flags: []string{"socket", "port"},
+		Cmd:   func(cmd *Command) error {
+				fmt.Println("Done.")
+		}
+})
 ```
 
-If you specify one, it will only be invoked if no subcommand is used.
+The parent command's Cmd is then optional. If you specify one, it will only be invoked if no subcommand is used.
 
 For evaluating the command line, call
 
@@ -135,9 +138,9 @@ The command receives its originating Command as input can access `cmd.Args` (a s
 
 ### Notes about the config file
 
-By default, *start* looks for a configuration file in the following places:
+By default, _start_ looks for a configuration file in the following places:
 
-* In the path defined through the environment variable &lt;APPLICATION&gt;_CFGPATH
+* In the path defined through the environment variable &lt;APPLICATION&gt;&#95;CFGPATH
 * In the working directory
 * In the user's home directory
 
@@ -149,7 +152,7 @@ You can also set a custom name:
 start.UseConfigFile("<your_config_file>")
 ```
 
-*start* then searches for this file name in the places listed above.
+_start_ then searches for this file name in the places listed above.
 
 You may as well specify a full path to your configuration file:
 
@@ -159,11 +162,11 @@ start.UseConfigFile("<path_to_your_config_file>")
 
 The above places do not get searched in this case.
 
-Or simply set &lt;APPLICATION&gt;_CFGPATH to a path of your choice. If this path does not end in ".toml", *start* assumes that the path is a directory and tries to find "&lt;application&gt;.toml" in this directory.
+Or simply set &lt;APPLICATION&gt;&#95;CFGPATH to a path of your choice. If this path does not end in ".toml", _start_ assumes that the path is a directory and tries to find "&lt;application&gt;.toml" in this directory.
 
 The configuration file is a [TOML](https://github.com/toml-lang/toml) file. By convention, all of the application's global variables are top-level "key=value" entries, outside any section. Besides this,  you can include your own sections as well. This is useful if you want to provide defaults for more complex data structures (arrays, tables, nested settings, etc). Access the parsed TOML document directly if you want to read values from TOML sections.
 
-*start* uses [toml-go](https://github.com/laurent22/toml-go) for parsing the config file. The parsed contents are available via a property named "CfgFile", and you can use toml-go methods for accessing the contents (after having invoked `start.Parse()`or `start.Up()`):
+_start_ uses [toml-go](https://github.com/laurent22/toml-go) for parsing the config file. The parsed contents are available via a property named "CfgFile", and you can use toml-go methods for accessing the contents (after having invoked `start.Parse()`or `start.Up()`):
 
 ```go
 langs := start.CfgFile.GetArray("colors")
