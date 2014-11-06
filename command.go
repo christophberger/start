@@ -90,8 +90,10 @@ func Usage(cmd *Command) error {
 		fmt.Println()
 		fmt.Println(filepath.Base(os.Args[0]))
 		fmt.Println()
-		fmt.Println(Description)
-		fmt.Println()
+		if len(Description) > 0 {
+			fmt.Println(Description)
+			fmt.Println()
+		}
 		if len(Commands) > 0 {
 			width := maxCmdNameLen()
 			fmt.Println("Available commands:")
@@ -186,7 +188,7 @@ func getFlagsOfOtherCommands(c *Command) map[string]bool {
 // command has rejected.
 // If the Command is nil, then checkFlags returns all global flags.
 func checkFlags(c *Command) map[string]bool {
-	rejectedFlags := make(map[string]bool) // TODO -> map
+	rejectedFlags := make(map[string]bool)
 	otherFlags := getFlagsOfOtherCommands(c)
 	flag.Visit(func(f *flag.Flag) {
 		isNotMyFlag := true
@@ -198,7 +200,7 @@ func checkFlags(c *Command) map[string]bool {
 			}
 		}
 		if isNotMyFlag {
-			for otherFlag, _ := range otherFlags {
+			for otherFlag := range otherFlags {
 				if f.Name == otherFlag {
 					rejectedFlags[otherFlag] = true
 				}
@@ -220,6 +222,10 @@ func checkFlags(c *Command) map[string]bool {
 func readCommand(args []string) (*Command, error) {
 	var cmd, subcmd *Command
 	var ok bool
+	if len(args) == 0 {
+		Usage(nil)
+		os.Exit(0)
+	}
 	var name = args[0]
 	if cmd, ok = Commands[name]; ok {
 		// command found. Remove it from the argument list.
