@@ -13,7 +13,7 @@ Parse() implemented.
 Commands, subcommands, and Up() implemented.  
 
 
-Executive Summary (or: TL;DR)
+Executive Summary (a.k.a. "TL;DR")
 -----------------------------
 
 The _start_ package for Go provides two basic features for command line applications:
@@ -245,7 +245,7 @@ func main() {
 func translate(cmd *Command) error {
 	source := cmd.Args[0]
 
-	target := google.Translate(sl, source, &tl)  // this is completely made up
+	target := google.Translate(sl, source, tl)  // this API method is completely made up
 
 	if speak {
 		apple.VoiceKit.SpeakOutString(target).WithVoice(v)  // this also
@@ -254,6 +254,7 @@ func translate(cmd *Command) error {
 }
 
 func checkstyle(cmd *Command) error  {
+	// real-life code should check for len(cmd.Args) first
 	source := cmd.Args[0]
 	stdout.Println(office.StyleChecker(source))  // also made up
 	return nil
