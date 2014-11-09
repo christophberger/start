@@ -39,7 +39,7 @@ I built the _start_ package mainly because existing flag packages do not provide
 Requirements
 ------------
 
-Go 1.3 or later. (Tested with Go 1.3.1)
+Go 1.3 or later. (Tested with Go 1.3.2 on OSX)
 
 Installation
 ------------
