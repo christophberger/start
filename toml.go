@@ -47,6 +47,10 @@ func (c *ConfigFile) Path() string {
 	return c.path
 }
 
+func (c *ConfigFile) Toml() toml.Document {
+	return c.doc
+}
+
 func (c *ConfigFile) findAndReadTomlFile(name string) error {
 	var err error
 
