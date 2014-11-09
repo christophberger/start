@@ -8,12 +8,14 @@ Start [Go](http://golang.org) command line apps with ease
 
 Status
 ------
-v0.2.0  
-Parse() implemented.  
-Commands, subcommands, and Up() implemented.  
+v0.2.0 Beta.  
+Basic functionality is implemented.  
+Unit tests pass but no real-world tests were done yet.
+
+Tested with Go 1.3.2 darwin/amd64 on Mac/OSX Yosemite and with Go 1.3.3 linux/arm on a Banana Pi with Bananian OS 14.09.
 
 
-Executive Summary (a.k.a. "TL;DR")
+Executive Summary
 -----------------------------
 
 The _start_ package for Go provides two basic features for command line applications:
@@ -39,7 +41,8 @@ I built the _start_ package mainly because existing flag packages do not provide
 Requirements
 ------------
 
-Go 1.3 or later. (Tested with Go 1.3.2 on OSX)
+[Go](http://golang.org) 1.3 or later.
+
 
 Installation
 ------------
@@ -59,7 +62,7 @@ import (
 
 ### Define application settings:
 
-Define your application settings like you would define flags with the flag or [pflag](https://github.com/ogier/pflag) packages:
+Define your application settings using [pflag](https://github.com/ogier/pflag):
 
 ```go
 var ip *int = flag.Int("intname", "n", 1234, "help message")
@@ -67,7 +70,7 @@ var sp *string = flag.String("strname", "s", "default", "help message")
 var bp *bool = flag.Bool("boolname", "b", "help message") // default is false if boolean flag is missing
 
 var flagvar int
-flag.IntVar(&flagvar, "flagname", 1234, "help message")
+flag.IntVar(&flagvar, "flagname", "f" 1234, "help message")
 ```
 
 ...you know this already from the standard flag package - no learning curve here. The pflag package adds POSIX compatibility: --help and -h instead of -help. See the pflag readme for details.
@@ -89,7 +92,7 @@ This way, you are free to decide whether to use a config file, environment varia
 
 And best of all, each setting has the same name in the config file, for the environment variable, and for the command line flag (but the latter can also have a short form).
 
-[1] NOTE: If your application name contains characters other than a-zA-Z0-9_, then &lt;APPLICATION&gt; must be set to the application name where all special characters are replaced by an underscore. For example: If your executable is named "start.test", then the environment variable is expected to read START_TEST_CFGPATH.
+[1] NOTE: If your executable's name contains characters other than a-zA-Z0-9_, then &lt;APPLICATION&gt; must be set to the executable's name with all special characters replaced by an underscore. For example: If your executable is named "start.test", then the environment variable is expected to read START_TEST_CFGPATH.
 
 ### Define commands:
 
@@ -194,7 +197,7 @@ Set an environment variable. Let's assume your executable is named "gotranslate"
 $ export GOTRANSLATE_VOICE = Sepp
 ```
 
-Define the global variables in your code, just as you would do with the flag or (as in the below example) [pflag](https://github.com/ogier/pflag) packages:
+Define the global variables in your code, just as you would do with the [pflag](https://github.com/ogier/pflag) package:
 
 ```go
 tl := flag.StringP("targetlang", "t", "danish", "The language to translate into")
@@ -219,7 +222,7 @@ func main() {
 	start.Add(&Command{
 		Name: "check",
 		Short: "check [style|spelling]",
-		Long: "Perform various checks"
+		Long: "Perform various checks",
 	})
 
 	start.Add(&Command{
@@ -244,7 +247,6 @@ func main() {
 
 func translate(cmd *Command) error {
 	source := cmd.Args[0]
-
 	target := google.Translate(sl, source, tl)  // this API method is completely made up
 
 	if speak {
@@ -262,7 +264,7 @@ func checkstyle(cmd *Command) error  {
 
 func checkspelling(cmd *Command) error {
 	source := cmd.Args[0]
-	stdout.Println(aspell.Check(source))  // just fantasy
+	stdout.Println(aspell.Check(source))  // just an imaginary method
 	return nil
 }
 ```
@@ -270,9 +272,10 @@ func checkspelling(cmd *Command) error {
 
 Change Log
 ----------
-No version released yet.
-The code is still undergoing heavy change.
-For detailed changes, see CHANGES.md.
+
+See CHANGES.md for details.
+
+0.2.0 - First release with the basic functionality done.
 
 
 About the name
