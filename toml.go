@@ -10,7 +10,6 @@
 package start
 
 import (
-	"errors"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -19,15 +18,10 @@ import (
 	"github.com/laurent22/toml-go"
 )
 
-// ConfigFile represents a configuration file.
-type ConfigFile struct {
-	doc toml.Document
-}
-
 // NewConfigFile creates a new ConfigFile struct filled with the contents
 // of the file identified by filename.
 // Parameter filename can be an empty string, a file name, or a fully qualified path.
-func NewConfigFile(filename string) (*ConfigFile, error) {
+func newConfigFile(filename string) (*ConfigFile, error) { // TODO: Do not return an error. See start.go > parse()
 	cfg := &ConfigFile{}
 	err := cfg.findAndReadTomlFile(filename)
 	return cfg, err
@@ -43,9 +37,18 @@ func (c *ConfigFile) String(name string) string {
 	// all non-string values that implement the String() method.
 	if exists {
 		return value.String()
-	} else {
-		return ""
 	}
+	return ""
+}
+
+// Path returns the path to the config file, if one was found.
+// Otherwise it returns an empty path.
+func (c *ConfigFile) Path() string {
+	return c.path
+}
+
+func (c *ConfigFile) Toml() toml.Document {
+	return c.doc
 }
 
 func (c *ConfigFile) findAndReadTomlFile(name string) error {
@@ -101,18 +104,27 @@ func (c *ConfigFile) findAndReadTomlFile(name string) error {
 			name = AppName() + ".toml"
 		}
 		c.doc, err = c.readTomlFile(filepath.Join(cfgPath, name))
-		return err
+		// At this point, it is clear that no config file exists at the
+		// given locations.
+		// The code cannot determine if the config file is missing intentionally
+		// or rather by fault, so it assumes the former and returns no error.
+		// The user of this library can verify if a config file was read by
+		// calling start.ConfigFilePath() after having called start.Up()
+		// or start.Parse().
+		return nil
 	}
 	return err
 }
 
 func (c *ConfigFile) readTomlFile(path string) (toml.Document, error) {
 	var parser toml.Parser
+	var err error
 	emptyDoc := parser.Parse("") // empty default TOML document required to fix a runtime panic
-	if _, err := os.Stat(path); err == nil {
+	if _, err = os.Stat(path); err == nil {
+		c.path = path
 		return parser.ParseFile(path), nil
 	}
-	return emptyDoc, errors.New("File not found: " + path)
+	return emptyDoc, err
 }
 
 // GetHomeDir finds the user's home directory in an OS-independent way.

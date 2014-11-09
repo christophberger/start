@@ -80,7 +80,9 @@ func TestCommands(t *testing.T) {
 	os.Args = []string{os.Args[0]}
 
 	Convey("Ensure that the test flags exist", t, func() {
-		Parse()
+		if err := Parse(); err != nil {
+			fmt.Println(err)
+		}
 		So(flag.Lookup("yes").Name, ShouldEqual, "yes")
 		So(flag.Lookup("size").Name, ShouldEqual, "size")
 	})
@@ -142,7 +144,9 @@ Usage:
 			},
 		})
 
-		Parse()
+		if err := Parse(); err != nil {
+			fmt.Println(err)
+		}
 
 		Convey("readCommand should identify all of them correctly", func() {
 			cmd, err := readCommand([]string{"test", "arg1", "arg2"})
@@ -192,6 +196,7 @@ func TestCheckFlags(t *testing.T) {
 	var second int
 	var third int
 	var global int
+	var rejectedFlags map[string]bool
 
 	// ContinueOnError is required when running goconvey as server; otherwise, unrecognized
 	// flags that are passed to the test executable will cause an error:
@@ -226,14 +231,16 @@ func TestCheckFlags(t *testing.T) {
 		Flags: []string{"first", "second", "third"},
 	})
 
-	Parse()
+	if err := Parse(); err != nil {
+		fmt.Println(err)
+	}
 
 	Convey("A command should accept its own flags and all global flags", t, func() {
-		rejectedFlags := checkFlags(Commands["cmd123"])
+		rejectedFlags = checkFlags(Commands["cmd123"])
 		So(len(rejectedFlags), ShouldEqual, 0)
 	})
 	Convey("A command should reject the flags that belong to the other command only", t, func() {
-		rejectedFlags := checkFlags(Commands["cmd23"])
+		rejectedFlags = checkFlags(Commands["cmd23"])
 		So(len(rejectedFlags), ShouldEqual, 1)
 		So(rejectedFlags["first"], ShouldEqual, true)
 
