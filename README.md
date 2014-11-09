@@ -1,20 +1,24 @@
 Start
 =====
 
-Start Go command line apps with ease
+Start [Go](http://golang.org) command line apps with ease
 
+[![Build Status](https://travis-ci.org/christophberger/start.svg)](https://travis-ci.org/christophberger/start)
+[![3-clause BSD License](http://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](http://opensource.org/licenses/BSD-3-Clause)
 
 Status
 ------
-v0.1.0-alpha.
-Parse() implemented.
-TODO: Implement commands, subcommands, and Up().
+v0.2.0 Beta.  
+Basic functionality is implemented.  
+Unit tests pass but no real-world tests were done yet.
+
+Tested with Go 1.3.2 darwin/amd64 on Mac/OSX Yosemite and with Go 1.3.3 linux/arm on a Banana Pi with Bananian OS 14.09.
 
 
 Executive Summary
------------------
+-----------------------------
 
-The *start* package for Go provides two basic features for command line applications:
+The _start_ package for Go provides two basic features for command line applications:
 
 1. Read your application settings transparently from either  
 	- command line flags,  
@@ -31,106 +35,146 @@ The *start* package for Go provides two basic features for command line applicat
 Motivation
 ----------
 
-I built the *start* package mainly because existing flag packages do not provide any option for getting default values from environment variables or from a config file (let alone in a transparent way). And I decided to include command and subcommand parsing as well, making this package a complete "starter kit".
+I built the _start_ package mainly because existing flag packages do not provide any option for getting default values from environment variables or from a config file (let alone in a transparent way). And I decided to include command and subcommand parsing as well, making this package a complete "starter kit".
+
+
+Requirements
+------------
+
+[Go](http://golang.org) 1.3 or later.
 
 
 Installation
 ------------
 
-    go get github.com/christophberger/start
-    
+```bash
+go get github.com/christophberger/start
+```
+
 Usage
 -----
 
-    import (
-        "github.com/christophberger/start"
-    )
-
+```go
+import (
+	"github.com/christophberger/start"
+)
+```
 
 ### Define application settings:
 
-Define your application settings like you would define flags with the flag or [pflag](https://github.com/ogier/pflag) packages:
+Define your application settings using [pflag](https://github.com/ogier/pflag):
 
-	var ip *int = start.Int("intname", "n", 1234, "help message")
-	var sp *string = start.String("strname", "s", "default", "help message")
-	var bp *bool = start.Bool("boolname", "b", "help message") // default is false if boolean flag is missing
+```go
+var ip *int = flag.Int("intname", "n", 1234, "help message")
+var sp *string = flag.String("strname", "s", "default", "help message")
+var bp *bool = flag.Bool("boolname", "b", "help message") // default is false if boolean flag is missing
 
-	var flagvar int
-	flag.IntVar(&flagvar, "flagname", 1234, "help message")
+var flagvar int
+flag.IntVar(&flagvar, "flagname", "f" 1234, "help message")
+```
 
-Then (optionally, if not using commands as well) call 
-	
-	start.Parse()
+...you know this already from the standard flag package - no learning curve here. The pflag package adds POSIX compatibility: --help and -h instead of -help. See the pflag readme for details.
+
+Then (optionally, if not using commands as well) call
+
+```go
+start.Parse()
+```
 
 (instead of pflag.Parse()) to initialize each variable from these sources, in the given order:
 
 1. From a commandline flag of the long or short name.
-2. From an environment variable named as &lt;APPLICATION&gt;_&lt;LONGNAME&gt;, if the commandline flag does not exist. (<APPLICATION> is the executable's name (without extension, if any), and <LONGNAME> is the flag's long name.) [1]
+2. From an environment variable named as &lt;APPLICATION&gt;&#95;&lt;LONGNAME&gt;, if the commandline flag does not exist. (&lt;APPLICATION&gt; is the executable's name (without extension, if any), and &lt;LONGNAME&gt; is the flag's long name.) [1]
 3. From an entry in the config file, if the environment variable does not exist.
 4. From the default value if the config file entry does not exist.
 
-This way, you are free to decide whether to use a config file, environment variables, flags, or any combination of these. For example, let's assume you want to implement an HTTP server. Some of the settings will depend on the environment (development, test, or production), such as the HTTP port. Using enviornment variables, you can define, for example, port 8080 on the test server, and port 80 on the production server. Other settings will be the same across environments, so put them into the config file. And finally, you can overwrite any default setting at any time via command line flags. 
+This way, you are free to decide whether to use a config file, environment variables, flags, or any combination of these. For example, let's assume you want to implement an HTTP server. Some of the settings will depend on the environment (development, test, or production), such as the HTTP port. Using environment variables, you can define, for example, port 8080 on the test server, and port 80 on the production server. Other settings will be the same across environments, so put them into the config file. And finally, you can overwrite any default setting at any time via command line flags.
 
 And best of all, each setting has the same name in the config file, for the environment variable, and for the command line flag (but the latter can also have a short form).
 
-[1] NOTE: If your application name contains characters other than a-zA-Z0-9_, then <APPLICATION> must be set to the application name where all special characters are replaced by an underscore. For example: If your executable is named "start.test", then the environment variable is expected to read START_TEST_CFGPATH.
+[1] NOTE: If your executable's name contains characters other than a-zA-Z0-9_, then &lt;APPLICATION&gt; must be set to the executable's name with all special characters replaced by an underscore. For example: If your executable is named "start.test", then the environment variable is expected to read START_TEST_CFGPATH.
 
 ### Define commands:
 
-Use Command() to define a new command. Pass the name, a sort and a long help message, and the function to call.
+Use Add() to define a new command. Pass the name, a short and a long help message, optionally a list of command-specific flag names, and the function to call.
 
-	start.Command("command", "short help message", "long help for 'help command'", commandFunc)
+```go
+start.Add(&Command{
+		Name:  "command",
+		Short: "short help message",
+		Long:  "long help for 'help command'",
+		Flags: []string{"socket", "port"},
+		Cmd:   func(cmd *Command) error {
+				fmt.Println("Done.")
+		}
+})
+```
 
-The function commandFunc has no parameters. It can get the command line via `flag.Args()` or `flag.Arg(n)`, where n is between 0 and `flag.NArg()-1`.
+The Cmd function receives its Command struct. It can get the command line via the `cmd.Args` slice.
 
-Define subcommands in the same way through SubCommand:
+Define subcommands in the same way but add the name of the parent command:
 
-	start.SubCommand("parent", "command", "short help", "long help", commandFunc)
+```go
+start.Add(&Command{
+		Name:  "command",
+		Parent: "parentcmd"
+		Short: "short help message",
+		Long:  "long help for 'help command'",
+		Flags: []string{"socket", "port"},
+		Cmd:   func(cmd *Command) error {
+				fmt.Println("Done.")
+		}
+})
+```
 
-The parent command then needs no own commandFunc:
-
-	start.Command("parent", "short help", "long help")
-
-If you specify one, it will only be invoked if no subcommand is used.
+The parent command's Cmd is then optional. If you specify one, it will only be invoked if no subcommand is used.
 
 For evaluating the command line, call
 
-	start.Up()
+```go
+start.Up()
+```
 
 This method calls `start.Parse()` and then executes the given command.
+The command receives its originating Command as input can access `cmd.Args` (a string array) to get all parameters (minus the flags)
 
 
 ### Notes about the config file
 
-By default, *start* looks for a configuration file in the following places:
+By default, _start_ looks for a configuration file in the following places:
 
-* In the path defined through the environment variable <APPLICATION>_CFGPATH
-* In the working directory 
+* In the path defined through the environment variable &lt;APPLICATION&gt;&#95;CFGPATH
+* In the working directory
 * In the user's home directory
 
-The name of the configuration file is either <application>.toml or .<application> (the latter form is preferred when used in a user's home dir on Unix-like systems). 
+The name of the configuration file is either &lt;application&gt;.toml or .&lt;application&gt; (the latter form is preferred when used in a user's home dir on Unix-like systems).
 
 You can also set a custom name:
 
-	start.UseConfigFile("<your_config_file>")
+```go
+start.UseConfigFile("<your_config_file>")
+```
 
-*start* then searches for this file name in the places listed above.
+_start_ then searches for this file name in the places listed above.
 
 You may as well specify a full path to your configuration file:
 
-	start.UseConfigFile("<path_to_your_config_file>")
+```go
+start.UseConfigFile("<path_to_your_config_file>")
+```
 
 The above places do not get searched in this case.
 
-Or simply set <APPLICATION>_CFGPATH to a path of your choice. If this path does not end in ".toml", *start* assumes that the path is a directory and tries to find "<application>.toml" in this directory.
+Or simply set &lt;APPLICATION&gt;&#95;CFGPATH to a path of your choice. If this path does not end in ".toml", _start_ assumes that the path is a directory and tries to find "&lt;application&gt;.toml" in this directory.
 
 The configuration file is a [TOML](https://github.com/toml-lang/toml) file. By convention, all of the application's global variables are top-level "key=value" entries, outside any section. Besides this,  you can include your own sections as well. This is useful if you want to provide defaults for more complex data structures (arrays, tables, nested settings, etc). Access the parsed TOML document directly if you want to read values from TOML sections.
 
-*start* uses [toml-go](https://github.com/laurent22/toml-go) for parsing the config file. The parsed contents are available via a property named "CfgFile", and you can use toml-go methods for accessing the contents (after having invoked `start.Parse()`or `start.Up()`):
+_start_ uses [toml-go](https://github.com/laurent22/toml-go) for parsing the config file. The parsed contents are available via a property named "CfgFile", and you can use toml-go methods for accessing the contents (after having invoked `start.Parse()`or `start.Up()`):
 
-	langs := start.CfgFile.GetArray("colors")
-	langs := start.CfgFile.GetDate("publish")
-
+```go
+langs := start.CfgFile.GetArray("colors")
+langs := start.CfgFile.GetDate("publish")
+```
 (See the toml-go project for all avaialble methods.)
 
 
@@ -141,75 +185,97 @@ For this example, let's assume you want to build a fictitious application for tr
 
 First, set up a config file consisting of key/value pairs:
 
-	targetlang = bavarian
-	sourcelang = english_us
-	voice = Janet
-
+```toml
+targetlang = bavarian
+sourcelang = english_us
+voice = Janet
+```
 
 Set an environment variable. Let's assume your executable is named "gotranslate":
 
-	$ export GOTRANSLATE_VOICE = Sepp
+```bash
+$ export GOTRANSLATE_VOICE = Sepp
+```
 
+Define the global variables in your code, just as you would do with the [pflag](https://github.com/ogier/pflag) package:
 
-Define the global variables in your code, just as you would do with the flag or [pflag](https://github.com/ogier/pflag) packages:
-
-	tlp := flag.StringP("targetlang", "t", "danish", "The language to translate into")
-	var sl string
-	flag.StringVarP("sourcelang", "s", "english_uk", "The language to translate from")
-	vp := flag.StringP("voice", "v", "Homer", "The voice used for text-to-speech")
-	sp := flag.BoolP("speak", "p", false, "Speak out the translated string")
-
+```go
+tl := flag.StringP("targetlang", "t", "danish", "The language to translate into")
+var sl string
+flag.StringVarP("sourcelang", "s", "english_uk", "The language to translate from")
+v := flag.StringP("voice", "v", "Homer", "The voice used for text-to-speech")
+speak := flag.BoolP("speak", "p", false, "Speak out the translated string")
+```
 
 Define and implement some commands:
 
-	func main() {
-		start.Command("translate", 
-			"translate [<options>] <string>", 
-			"Translate a string from a source language into a target language, optionally speaking it out", 
-			translate)
+```go
+func main() {
+	start.Add(&Command{
+		Name: "translate",
+		OwnFlags: []string{"voice", "speak"}, // voice and speak make only sense for the translate command
+		Short: "translate [<options>] <string>",
+		Long: "Translate a string from a source language into a target language, optionally speaking it out",
+		Cmd: translate,
+	})
 
-		start.Command("check", 
-			"check [style|spelling]", 
-			"Perform various checks")
+	start.Add(&Command{
+		Name: "check",
+		Short: "check [style|spelling]",
+		Long: "Perform various checks",
+	})
 
-		start.SubCommand("check", "style", 
-			"check style <string>", 
-			"Check the string for slang words or phrases", 
-			checkstyle)
+	start.Add(&Command{
+		Parent: "check"
+		Name: "style",
+		Short: "check style <string>",
+		Long: "Check the string for slang words or phrases",
+		Cmd: checkstyle,
+	})
 
-		start.SubCommand("check", "spelling", 
-			"check spelling <string>", 
-			"Check the string for spelling errors", 
-			checkspelling)
+	start.Add("check", &Command{
+		Parent: "check"
+		Name: "spelling",
+		Short: "check spelling <string>",
+		Long: "Check the string for spelling errors",
+		Cmd: checkspelling,
+	})
 
-		start.Up()
+	start.Up()
+}
+
+
+func translate(cmd *Command) error {
+	source := cmd.Args[0]
+	target := google.Translate(sl, source, tl)  // this API method is completely made up
+
+	if speak {
+		apple.VoiceKit.SpeakOutString(target).WithVoice(v)  // this also
 	}
+	return nil
+}
 
+func checkstyle(cmd *Command) error  {
+	// real-life code should check for len(cmd.Args) first
+	source := cmd.Args[0]
+	stdout.Println(office.StyleChecker(source))  // also made up
+	return nil
+}
 
-	func translate() {
-		source := flag.Arg(1)
-		
-		target := google.Translate(sl, source, &tlp)  // this is completely made up
-		
-		if &sp {
-			apple.VoiceKit.SpeakOutString(target).WithVoice(&vp)  // this also
-		}
-	}
-
-	func checkstyle() {
-		source := flag.Arg(1)
-		stdout.Println(office.StyleChecker(source))  // also made up
-	}
-
-	func checkspelling() {
-		source := flag.Arg(1)
-		stdout.Println(aspell.Check(source))  // just fantasy
-	}
+func checkspelling(cmd *Command) error {
+	source := cmd.Args[0]
+	stdout.Println(aspell.Check(source))  // just an imaginary method
+	return nil
+}
+```
 
 
 Change Log
 ----------
-No version released yet.
+
+See CHANGES.md for details.
+
+0.2.0 - First release with the basic functionality done.
 
 
 About the name

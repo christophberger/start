@@ -10,7 +10,6 @@
 package start
 
 import (
-	"errors"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -19,32 +18,37 @@ import (
 	"github.com/laurent22/toml-go"
 )
 
-// ConfigFile represents a configuration file.
-type ConfigFile struct {
-	doc toml.Document
-}
-
 // NewConfigFile creates a new ConfigFile struct filled with the contents
 // of the file identified by filename.
 // Parameter filename can be an empty string, a file name, or a fully qualified path.
-func NewConfigFile(filename string) *ConfigFile {
-	cfg := new(ConfigFile)
+func newConfigFile(filename string) (*ConfigFile, error) { // TODO: Do not return an error. See start.go > parse()
+	cfg := &ConfigFile{}
 	err := cfg.findAndReadTomlFile(filename)
-	if err != nil {
-		return nil
-	}
-	return cfg
+	return cfg, err
 }
 
 // String returns the value of key "name" as a string.
 // Keys must be defined outside any section in the TOML file.
 func (c *ConfigFile) String(name string) string {
 	value, exists := c.doc.GetValue(name)
+	// Note: c.doc.GetString() does not work here as this
+	// returns "" for all non-string values.
+	// GetValue().String(), on the other hand, does work for
+	// all non-string values that implement the String() method.
 	if exists {
 		return value.String()
-	} else {
-		return ""
 	}
+	return ""
+}
+
+// Path returns the path to the config file, if one was found.
+// Otherwise it returns an empty path.
+func (c *ConfigFile) Path() string {
+	return c.path
+}
+
+func (c *ConfigFile) Toml() toml.Document {
+	return c.doc
 }
 
 func (c *ConfigFile) findAndReadTomlFile(name string) error {
@@ -100,18 +104,27 @@ func (c *ConfigFile) findAndReadTomlFile(name string) error {
 			name = AppName() + ".toml"
 		}
 		c.doc, err = c.readTomlFile(filepath.Join(cfgPath, name))
-		return err
+		// At this point, it is clear that no config file exists at the
+		// given locations.
+		// The code cannot determine if the config file is missing intentionally
+		// or rather by fault, so it assumes the former and returns no error.
+		// The user of this library can verify if a config file was read by
+		// calling start.ConfigFilePath() after having called start.Up()
+		// or start.Parse().
+		return nil
 	}
 	return err
 }
 
 func (c *ConfigFile) readTomlFile(path string) (toml.Document, error) {
 	var parser toml.Parser
-	var doc toml.Document
-	if _, err := os.Stat(path); err == nil {
+	var err error
+	emptyDoc := parser.Parse("") // empty default TOML document required to fix a runtime panic
+	if _, err = os.Stat(path); err == nil {
+		c.path = path
 		return parser.ParseFile(path), nil
 	}
-	return doc, errors.New("File not found: " + path)
+	return emptyDoc, err
 }
 
 // GetHomeDir finds the user's home directory in an OS-independent way.
