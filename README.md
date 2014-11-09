@@ -8,7 +8,7 @@ Start [Go](http://golang.org) command line apps with ease
 
 Status
 ------
-v0.2.0 Beta.  
+v0.2.1 Beta.  
 Basic functionality is implemented.  
 Unit tests pass but no real-world tests were done yet.
 
@@ -275,6 +275,7 @@ Change Log
 
 See CHANGES.md for details.
 
+0.2.1 - Fix: Visibility issues.
 0.2.0 - First release with the basic functionality done.
 
 
