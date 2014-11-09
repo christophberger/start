@@ -9,7 +9,7 @@ import (
 // ConfigFile represents a configuration file.
 // If the application has no configuration file, then doc is an empty
 // toml.Document and path is empty.
-type ConfigFile struct {
+type configFile struct {
 	doc  toml.Document
 	path string
 }
