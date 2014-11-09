@@ -18,18 +18,18 @@ import (
 	"github.com/laurent22/toml-go"
 )
 
-// NewConfigFile creates a new ConfigFile struct filled with the contents
+// NewconfigFile creates a new configFile struct filled with the contents
 // of the file identified by filename.
 // Parameter filename can be an empty string, a file name, or a fully qualified path.
-func newConfigFile(filename string) (*ConfigFile, error) { // TODO: Do not return an error. See start.go > parse()
-	cfg := &ConfigFile{}
+func newConfigFile(filename string) (*configFile, error) { // TODO: Do not return an error. See start.go > parse()
+	cfg := &configFile{}
 	err := cfg.findAndReadTomlFile(filename)
 	return cfg, err
 }
 
 // String returns the value of key "name" as a string.
 // Keys must be defined outside any section in the TOML file.
-func (c *ConfigFile) String(name string) string {
+func (c *configFile) String(name string) string {
 	value, exists := c.doc.GetValue(name)
 	// Note: c.doc.GetString() does not work here as this
 	// returns "" for all non-string values.
@@ -43,22 +43,22 @@ func (c *ConfigFile) String(name string) string {
 
 // Path returns the path to the config file, if one was found.
 // Otherwise it returns an empty path.
-func (c *ConfigFile) Path() string {
+func (c *configFile) Path() string {
 	return c.path
 }
 
-func (c *ConfigFile) Toml() toml.Document {
+func (c *configFile) Toml() toml.Document {
 	return c.doc
 }
 
-func (c *ConfigFile) findAndReadTomlFile(name string) error {
+func (c *configFile) findAndReadTomlFile(name string) error {
 	var err error
 
 	// is name an absolute path? If so, go ahead and read the file.
 	if filepath.IsAbs(name) {
 		fileInfo, _ := os.Stat(name)
 		if fileInfo.IsDir() {
-			c.doc, err = c.readTomlFile(filepath.Join(name, AppName()+".toml"))
+			c.doc, err = c.readTomlFile(filepath.Join(name, appName()+".toml"))
 		} else {
 			c.doc, err = c.readTomlFile(name)
 		}
@@ -67,7 +67,7 @@ func (c *ConfigFile) findAndReadTomlFile(name string) error {
 
 	// is the environment variable <APPNAME>_CFGPATH set
 	// (either to a dir path or to a file path)?
-	cfgPath := os.Getenv(strings.ToUpper(AppName() + "_CFGPATH"))
+	cfgPath := os.Getenv(strings.ToUpper(appName() + "_CFGPATH"))
 	if len(cfgPath) > 0 {
 		if len(name) > 0 {
 			cfgPath = filepath.Join(cfgPath, name)
@@ -85,7 +85,7 @@ func (c *ConfigFile) findAndReadTomlFile(name string) error {
 		var path string
 		if len(name) == 0 {
 			// no name supplied; in $HOME use .<application>
-			path = filepath.Join(cfgPath, "."+AppName())
+			path = filepath.Join(cfgPath, "."+appName())
 		} else {
 			path = filepath.Join(cfgPath, name)
 		}
@@ -101,7 +101,7 @@ func (c *ConfigFile) findAndReadTomlFile(name string) error {
 	cfgPath, err = os.Getwd()
 	if err == nil {
 		if len(name) == 0 {
-			name = AppName() + ".toml"
+			name = appName() + ".toml"
 		}
 		c.doc, err = c.readTomlFile(filepath.Join(cfgPath, name))
 		// At this point, it is clear that no config file exists at the
@@ -116,7 +116,7 @@ func (c *ConfigFile) findAndReadTomlFile(name string) error {
 	return err
 }
 
-func (c *ConfigFile) readTomlFile(path string) (toml.Document, error) {
+func (c *configFile) readTomlFile(path string) (toml.Document, error) {
 	var parser toml.Parser
 	var err error
 	emptyDoc := parser.Parse("") // empty default TOML document required to fix a runtime panic
@@ -142,12 +142,12 @@ func GetHomeDir() string {
 	return home
 }
 
-// AppName returns the name of the application, with path and extension stripped off,
+// appName returns the name of the application, with path and extension stripped off,
 // and all characters other than ASCII letters, numbers, or underscores, replaced by
 // underscores.
 // Replacing special characters by underscores makes the returned name suitable for
 // being used in the name of an environment variable.
-func AppName() string {
+func appName() string {
 	fileName := filepath.Base(os.Args[0])
 	fileExt := filepath.Ext(fileName)
 	if len(fileExt) > 0 {

@@ -14,7 +14,7 @@ func TestReadTomlFile(t *testing.T) {
 	Convey("Given a file \"test.toml\" in test/", t, func() {
 		var tomlDoc toml.Document
 		var err error
-		cfg := new(ConfigFile)
+		cfg := new(configFile)
 
 		Convey("then readTomlFile('./test/test.toml') should find the file", func() {
 			tomlDoc, err = cfg.readTomlFile("./test/test.toml")
@@ -35,7 +35,7 @@ func TestConfigFile(t *testing.T) {
 		tomlfile, err := filepath.Abs("test/test.toml")
 		So(err, ShouldBeNil)
 
-		Convey("then newConfigFile loads "+tomlfile+" and returns a new ConfigFile", func() {
+		Convey("then newConfigFile loads "+tomlfile+" and returns a new configFile", func() {
 			cfg, _ := newConfigFile(tomlfile)
 			So(cfg, ShouldNotBeNil)
 		})
@@ -46,11 +46,11 @@ func TestConfigFile(t *testing.T) {
 		tomlfile, err := filepath.Abs("test")
 		So(err, ShouldBeNil)
 
-		Convey("then newConfigFile loads start.toml from that directory and returns a new ConfigFile", func() {
+		Convey("then newConfigFile loads start.toml from that directory and returns a new configFile", func() {
 			cfg, _ := newConfigFile(tomlfile)
 			So(cfg, ShouldNotBeNil)
-			Convey("and AppName() should return start", func() {
-				So(AppName(), ShouldEqual, "start")
+			Convey("and appName() should return start", func() {
+				So(appName(), ShouldEqual, "start")
 			})
 		})
 	})
