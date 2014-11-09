@@ -21,6 +21,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/laurent22/toml-go"
 	flag "github.com/ogier/pflag"
 )
 
@@ -121,4 +122,11 @@ func Up() error {
 // Returns an empty path if no config file was found.
 func ConfigFilePath() string {
 	return cfgFile.Path()
+}
+
+// ConfigFileToml returns the toml document created from the config file.
+// Useful for fetching additional content from the config file than the one used
+// by the flags.
+func ConfigFileToml() toml.Document {
+	return cfgFile.Toml()
 }
