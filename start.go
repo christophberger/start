@@ -39,7 +39,7 @@ var Description string
 // First, this package acts like a Singleton. No accidental reuse can happen.
 // Second, these variables do not pollute the global name spaces, as they are
 // package variables and private.
-var cfgFile *ConfigFile
+var cfgFile *configFile
 var cfgFileName string
 var customName bool
 var alreadyParsed bool
@@ -92,7 +92,7 @@ func parse() error {
 			f.Value.Set(val)
 		}
 		// then, find an apply environment variables:
-		envVar := os.Getenv(strings.ToUpper(AppName() + "_" + f.Name))
+		envVar := os.Getenv(strings.ToUpper(appName() + "_" + f.Name))
 		if len(envVar) > 0 {
 			f.Value.Set(envVar)
 		}
