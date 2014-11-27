@@ -4,16 +4,6 @@ import (
 	"github.com/laurent22/toml-go"
 )
 
-//// Configuration File Declarations
-
-// ConfigFile represents a configuration file.
-// If the application has no configuration file, then doc is an empty
-// toml.Document and path is empty.
-type configFile struct {
-	doc  toml.Document
-	path string
-}
-
 //// Command Declarations
 
 // CommandMap represents a list of Command objects.
@@ -45,4 +35,14 @@ type Command struct {
 	Args   []string
 
 	children CommandMap
+}
+
+//// Configuration File Declarations
+
+// ConfigFile represents a configuration file.
+// If the application has no configuration file, then doc is an empty
+// toml.Document and path is empty.
+type configFile struct {
+	doc  toml.Document
+	path string
 }
