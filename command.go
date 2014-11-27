@@ -225,8 +225,12 @@ func readCommand(args []string) (*Command, error) {
 		}
 		cmd.Args = args
 		notMyFlags := checkFlags(cmd)
+		s := ""
 		if len(notMyFlags) > 0 {
-			errmsg := fmt.Sprintf("Unknown flags: %v", notMyFlags)
+			if len(notMyFlags) > 1 {
+				s = "s"
+			}
+			errmsg := fmt.Sprintf("Unknown flag%s: %v", s, notMyFlags)
 			return &Command{
 				Cmd: Usage,
 			}, errors.New(errmsg)
