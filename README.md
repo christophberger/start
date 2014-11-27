@@ -3,16 +3,25 @@ Start
 
 Start [Go](http://golang.org) command line apps with ease
 
+![Version](http://img.shields.io/badge/Version-0.2.2-lightgrey.svg)
 [![Build Status](https://travis-ci.org/christophberger/start.svg)](https://travis-ci.org/christophberger/start)
-[![3-clause BSD License](http://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](http://opensource.org/licenses/BSD-3-Clause)
+[![3-clause BSD License](http://img.shields.io/badge/License-BSD%203--Clause-lightgrey.svg)](http://opensource.org/licenses/BSD-3-Clause)
+[![Godoc Reference](http://img.shields.io/badge/GoDoc-Reference-lightgrey.svg)](http://godoc.org/github.com/christophberger/start)
 
 Status
 ------
-v0.2.1 Beta.  
-Basic functionality is implemented.  
-Unit tests pass but no real-world tests were done yet.
+(_start_ uses [Semantic Versioning 2.0.0](http://semver.org/).)  
 
-Tested with Go 1.3.2 darwin/amd64 on Mac/OSX Yosemite and with Go 1.3.3 linux/arm on a Banana Pi with Bananian OS 14.09.
+v0.2.2.  
+NOT recommended for production yet.  
+
+"Major version zero (0.y.z) is for initial development. Anything may change at any time. The public API should not be considered stable."  
+(Semantic Versioning Specification, item 4.)
+
+Basic functionality is implemented.  
+Unit tests pass but no real-world tests were done yet.  
+
+Tested with Go 1.3.3 darwin/amd64 on Mac/OSX Yosemite and with Go 1.3.3 linux/arm on a Banana Pi running Bananian OS 14.09.
 
 
 Executive Summary
@@ -185,7 +194,7 @@ For this example, let's assume you want to build a fictitious application for tr
 
 First, set up a config file consisting of key/value pairs:
 
-```toml
+```
 targetlang = bavarian
 sourcelang = english_us
 voice = Janet
