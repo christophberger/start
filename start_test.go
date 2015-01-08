@@ -47,6 +47,11 @@ func TestUp(t *testing.T) {
 	var global int
 	var params []string
 
+	GlobalInit = func() error {
+		Description = "Testing testcmd"
+		return nil
+	}
+
 	// ContinueOnError is required when running goconvey as server; otherwise, unrecognized
 	// flags that are passed to the test executable will cause an error:
 	// "unknown shorthand flag: 't' in -test.v=true"
@@ -83,6 +88,6 @@ func TestUp(t *testing.T) {
 		So(params[0], ShouldEqual, "arg1")
 		So(params[1], ShouldEqual, "arg2")
 		So(err, ShouldEqual, nil)
-
+		So(Description, ShouldEqual, "Testing testcmd")
 	})
 }
