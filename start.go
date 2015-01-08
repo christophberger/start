@@ -33,6 +33,11 @@ var Commands = CommandMap{}
 // Description is a string used by the Usage command. It should be set to a description of the application before calling Up(). If a user runs the application with no arguments, Usage() will print this description string and list the available commands.
 var Description string
 
+// GlobalInit is a function for initializing resources for all commands.
+// GlobalInit is called AFTER parsing and BEFORE invoking a command.
+// Assign your own function before calling Up().
+var GlobalInit func() error
+
 // Private package variables.
 //
 // Note: I do explicitly make use of my right to use package-global variables.
@@ -108,6 +113,10 @@ func Up() error {
 	if err != nil {
 		return err
 	}
+	err = GlobalInit()
+	if err != nil {
+		return err
+	}
 	cmd, err := readCommand(flag.Args())
 	if err != nil {
 		fmt.Println(err)
@@ -129,4 +138,10 @@ func ConfigFilePath() string {
 // by the flags.
 func ConfigFileToml() toml.Document {
 	return cfgFile.Toml()
+}
+
+func init() {
+	GlobalInit = func() error {
+		return nil
+	}
 }
