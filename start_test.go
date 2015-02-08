@@ -48,7 +48,7 @@ func TestUp(t *testing.T) {
 	var params []string
 
 	GlobalInit = func() error {
-		Description = "Testing testcmd"
+		SetDescription("Testing testcmd")
 		return nil
 	}
 
@@ -81,13 +81,12 @@ func TestUp(t *testing.T) {
 	})
 
 	Convey("The test command should read all flags and parameters.", t, func() {
-		err := Up()
+		Up()
 		So(first, ShouldEqual, 10)
 		So(second, ShouldEqual, 20)
 		So(global, ShouldEqual, 3)
 		So(params[0], ShouldEqual, "arg1")
 		So(params[1], ShouldEqual, "arg2")
-		So(err, ShouldEqual, nil)
-		So(Description, ShouldEqual, "Testing testcmd")
+		So(description, ShouldEqual, "Testing testcmd")
 	})
 }
