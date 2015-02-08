@@ -187,15 +187,14 @@ func checkFlags(c *Command) map[string]bool {
 // readCommand extracts the command (and any subcommand, if applicable) from the
 // list of arguments.
 // Parameter args is the list of arguments *after* being parsed by flag.Parse().
-// The first item of args is expected to be a command name. If that command has
+// The first item of args must be a command name. If that command has
 // subcommands defined, the second item must contain the name of a subcommand.
-// If any error occurs, readCommand returns an error and the pre-defined Usage
-// command.
+// If any error occurs, readCommand returns an error and a Command calling the
+// pre-defined Usage function
 func readCommand(args []string) (*Command, error) {
 	var cmd, subcmd *Command
 	var ok bool
 	if len(args) == 0 {
-		Usage(cmd)
 		return &Command{
 			Cmd: Usage,
 		}, nil
