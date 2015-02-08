@@ -31,7 +31,7 @@ import (
 var Commands = CommandMap{}
 
 // Description is a string used by the Usage command. It should be set to a description of the application before calling Up(). If a user runs the application with no arguments, Usage() will print this description string and list the available commands.
-var Description string
+var description string
 
 // GlobalInit is a function for initializing resources for all commands.
 // GlobalInit is called AFTER parsing and BEFORE invoking a command.
@@ -56,6 +56,10 @@ var privateFlags = privateFlagsMap{}
 func UseConfigFile(fn string) {
 	cfgFileName = fn
 	customName = true
+}
+
+func SetDescription(descr string) {
+	description = descr
 }
 
 // Parse initializes all flag variables from command line flags, environment
@@ -108,14 +112,16 @@ func parse() error {
 }
 
 // Up parses all flags and then evaluates and executes the command line.
-func Up() error {
+func Up() {
 	err := Parse()
 	if err != nil {
-		return err
+		fmt.Println(err)
+		return
 	}
 	err = GlobalInit()
 	if err != nil {
-		return err
+		fmt.Println(err)
+		return
 	}
 	cmd, err := readCommand(flag.Args())
 	if err != nil {
@@ -123,7 +129,10 @@ func Up() error {
 		// Execution can continue safely despite the error, because in this
 		// case, readCommand returns the Usage command.
 	}
-	return cmd.Cmd(cmd)
+	err = cmd.Cmd(cmd)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 // ConfigFilePath returns the path of the config file that has been read in.
