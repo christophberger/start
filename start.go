@@ -30,13 +30,15 @@ import (
 // Commands is the global command list.
 var Commands = CommandMap{}
 
-// Description is a string used by the Usage command. It should be set to a description of the application before calling Up(). If a user runs the application with no arguments, Usage() will print this description string and list the available commands.
+// Description is a string used by the Usage command. It should be set to a description of the application before calling Up().
 var description string
+
+var version string
 
 // GlobalInit is a function for initializing resources for all commands.
 // GlobalInit is called AFTER parsing and BEFORE invoking a command.
 // Assign your own function before calling Up().
-var GlobalInit func() error
+var globalInit func() error
 
 // Private package variables.
 //
@@ -58,8 +60,25 @@ func UseConfigFile(fn string) {
 	customName = true
 }
 
+// SetDescription sets a description of the app. It receives a string containing
+// a brief description of the application. If a user runs the application with
+// no arguments, or if the user invokes the help command, Usage() will print
+// this description string and list the available commands.
 func SetDescription(descr string) {
 	description = descr
+}
+
+// SetVersion sets the version number of the application. Used by the pre-defined
+// version command.
+func SetVersion(ver string) {
+	version = ver
+}
+
+// SetInitFunc sets a function that is called after parsing the variables
+// but before calling the command. Useful for global initialization that affects
+// all commands alike.
+func SetInitFunc(initf func() error) {
+	globalInit = initf
 }
 
 // Parse initializes all flag variables from command line flags, environment
@@ -118,7 +137,7 @@ func Up() {
 		fmt.Println(err)
 		return
 	}
-	err = GlobalInit()
+	err = globalInit()
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -150,7 +169,7 @@ func ConfigFileToml() toml.Document {
 }
 
 func init() {
-	GlobalInit = func() error {
+	globalInit = func() error {
 		return nil
 	}
 }
