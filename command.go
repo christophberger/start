@@ -71,8 +71,8 @@ func applicationUsage() {
 	fmt.Println()
 	fmt.Println(filepath.Base(os.Args[0]))
 	fmt.Println()
-	if len(Description) > 0 {
-		fmt.Println(Description)
+	if len(description) > 0 {
+		fmt.Println(description)
 		fmt.Println()
 	}
 	if len(Commands) > 0 {
@@ -91,6 +91,7 @@ func applicationUsage() {
 }
 
 func commandUsage(cmd *Command) error {
+	fmt.Println()
 	if cmd.Parent != "" {
 		fmt.Printf("%v ", cmd.Parent)
 	}
@@ -194,8 +195,10 @@ func readCommand(args []string) (*Command, error) {
 	var cmd, subcmd *Command
 	var ok bool
 	if len(args) == 0 {
-		Usage(nil)
-		os.Exit(0)
+		Usage(cmd)
+		return &Command{
+			Cmd: Usage,
+		}, nil
 	}
 	var name = args[0]
 	if cmd, ok = Commands[name]; ok {
@@ -216,7 +219,7 @@ func readCommand(args []string) (*Command, error) {
 						errmsg += n.Name + ", "
 					}
 					return &Command{
-						Cmd: Usage,
+						Cmd: func(cmd *Command) error { return Usage(cmd) },
 					}, errors.New(errmsg)
 				}
 			}
@@ -228,7 +231,7 @@ func readCommand(args []string) (*Command, error) {
 		if len(notMyFlags) > 0 {
 			errmsg := fmt.Sprintf("Unknown flags: %v", notMyFlags)
 			return &Command{
-				Cmd: Usage,
+				Cmd: func(cmd *Command) error { return Usage(cmd) },
 			}, errors.New(errmsg)
 		}
 		return cmd, nil
