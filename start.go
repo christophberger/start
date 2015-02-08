@@ -30,16 +30,6 @@ import (
 // Commands is the global command list.
 var Commands = CommandMap{}
 
-// Description is a string used by the Usage command. It should be set to a description of the application before calling Up().
-var description string
-
-var version string
-
-// GlobalInit is a function for initializing resources for all commands.
-// GlobalInit is called AFTER parsing and BEFORE invoking a command.
-// Assign your own function before calling Up().
-var globalInit func() error
-
 // Private package variables.
 //
 // Note: I do explicitly make use of my right to use package-global variables.
@@ -51,11 +41,18 @@ var cfgFileName string
 var customName bool
 var alreadyParsed bool
 var privateFlags = privateFlagsMap{}
+var description string
+var version string
+
+// GlobalInit is a function for initializing resources for all commands.
+// GlobalInit is called AFTER parsing and BEFORE invoking a command.
+// If needed, assign your own function via SetInitFunc() before calling Up().
+var globalInit func() error
 
 // UseConfigFile allows to set a custom file name and/or path.
 // Call this before Parse() or Up(), respectively. Afterwards it has of course
 // no effect.
-func UseConfigFile(fn string) {
+func SetConfigFile(fn string) {
 	cfgFileName = fn
 	customName = true
 }
