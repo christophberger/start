@@ -1,10 +1,14 @@
 {
 	"ImportPath": "github.com/christophberger/start",
+<<<<<<< Updated upstream
+	"GoVersion": "go1.3.2",
+=======
 	"GoVersion": "go1.4.1",
+>>>>>>> Stashed changes
 	"Deps": [
 		{
-			"ImportPath": "github.com/jtolds/gls",
-			"Rev": "f1ac7f4f24f50328e6bc838ca4437d1612a0243c"
+			"ImportPath": "github.com/jacobsa/oglematchers",
+			"Rev": "4fc24f97b5b74022c2a3f4ca7eed57ca29083d3e"
 		},
 		{
 			"ImportPath": "github.com/laurent22/toml-go",
