@@ -6,7 +6,7 @@ Start [Go](http://golang.org) command line apps with ease
 ![tag](https://img.shields.io/github/tag/christophberger/start.svg)
 [![Build Status](https://travis-ci.org/christophberger/start.svg)](https://travis-ci.org/christophberger/start)
 [![BSD 3-clause License](http://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](http://opensource.org/licenses/BSD-3-Clause)
-[![goreportcard](http://img.shields.io/badge/goreportcard-rating-lightgrey.svg)](http://opensource.org/licenses/BSD-3-Clause)
+[![goreportcard](http://img.shields.io/badge/goreportcard-rating-lightgrey.svg)](http://goreportcard.com/report/christophberger/start)
 [![appstract](https://img.shields.io/badge/structure-appstract-lightgrey.svg)](http://go-appstract.appspot.com/view/)
 
 Executive Summary
