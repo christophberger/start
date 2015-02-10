@@ -3,9 +3,10 @@ Start
 
 Start [Go](http://golang.org) command line apps with ease
 
+[![tag](https://img.shields.io/github/tag/christophberger/start.svg)]
 [![Build Status](https://travis-ci.org/christophberger/start.svg)](https://travis-ci.org/christophberger/start)
 [![BSD 3-clause License](http://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](http://opensource.org/licenses/BSD-3-Clause)
-
+[![appstract](https://img.shields.io/badge/structure-appstract-lightgrey)](http://go-appstract.appspot.com/view/)
 
 Executive Summary
 -----------------------------
@@ -70,7 +71,7 @@ var sp *string = flag.String("strname", "s", "default", "help message")
 var bp *bool = flag.Bool("boolname", "b", "help message") // default is false if boolean flag is missing
 
 var flagvar int
-flag.IntVar(&flagvar, "flagname", "f" 1234, "help message")
+flag.IntVarP(&flagvar, "flagname", "f" 1234, "help message")
 ```
 
 ...you know this already from the standard flag package - no learning curve here. The pflag package adds POSIX compatibility: --help and -h instead of -help. See the pflag readme for details.
