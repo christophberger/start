@@ -88,6 +88,9 @@ func applicationUsage() {
 		fmt.Println("Available global flags:")
 		flagUsage(nil)
 	}
+	fmt.Println()
+	fmt.Println("Type help <command> to get help for a specific command.")
+	fmt.Println()
 }
 
 func commandUsage(cmd *Command) error {
@@ -127,6 +130,18 @@ func flagUsage(flagNames []string) {
 		fmt.Printf("%-*s  %s\n", width, flg[0], flg[1])
 
 	}
+}
+
+func help(cmd *Command) error {
+	if len(cmd.Args) == 0 {
+		applicationUsage()
+		return nil
+	}
+	command := Commands[cmd.Args[0]]
+	if command == nil {
+		return errors.New("Unknown command: " + cmd.Args[0])
+	}
+	return commandUsage(command)
 }
 
 // maxCmdNameLen returns the length of the longest command name.
