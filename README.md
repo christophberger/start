@@ -39,7 +39,7 @@ Status
 ------
 (_start_ uses [Semantic Versioning 2.0.0](http://semver.org/).)  
 
-v0.2.3.  
+v0.3.0.  
 NOT recommended for production yet.  
 
 Basic functionality is implemented.  
