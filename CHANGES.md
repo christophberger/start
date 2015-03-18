@@ -27,3 +27,11 @@ Fix: Visibility issues
 ### 0.2.2
 
 Added: Global init function.
+
+### 0.3.0
+
+Added: help command.
+Added: Some Set* functions.
+Added: Support for custom global init function.
+Added: Example in examples/test
+Fixed: empty usage
