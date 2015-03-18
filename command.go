@@ -55,6 +55,16 @@ func (cmd *Command) Add(subcmd *Command) error {
 	return nil
 }
 
+// Helper functions for Usage: println & printf print to stderr
+
+func println(args ...interface{}) {
+	fmt.Fprintln(os.Stderr, args...)
+}
+
+func printf(format string, args ...interface{}) {
+	fmt.Fprintf(os.Stderr, format, args...)
+}
+
 // Usage prints a description of the application and the short help string
 // of every command, when called with a nil argument.
 // When called with a command as parameter, Usage prints this command's
@@ -67,52 +77,52 @@ func Usage(cmd *Command) error {
 	} else {
 		err := commandUsage(cmd)
 		if err != nil {
-			fmt.Println(err)
+			println(err)
 		}
 	}
-	fmt.Println()
+	println()
 	return nil
 }
 
 func applicationUsage() {
-	fmt.Println()
-	fmt.Println(filepath.Base(os.Args[0]))
-	fmt.Println()
+	println()
+	println(filepath.Base(os.Args[0]))
+	println()
 	if len(description) > 0 {
-		fmt.Println(description)
-		fmt.Println()
+		println(description)
+		println()
 	}
 	if len(Commands) > 0 {
 		width := maxCmdNameLen()
-		fmt.Println("Available commands:")
-		fmt.Println()
+		println("Available commands:")
+		println()
 		for _, c := range Commands {
-			fmt.Printf("%-*s  %s\n", width, c.Name, c.Short)
+			printf("%-*s  %s\n", width, c.Name, c.Short)
 		}
 	}
 	globalFlags := checkFlags(nil)
 	if len(globalFlags) > 0 {
-		fmt.Println("Available global flags:")
+		println("Available global flags:")
 		flagUsage(nil)
 	}
-	fmt.Println()
-	fmt.Println("Type help <command> to get help for a specific command.")
-	fmt.Println()
+	println()
+	println("Type help <command> to get help for a specific command.")
+	println()
 }
 
 func commandUsage(cmd *Command) error {
-	fmt.Println()
+	println()
 	if cmd.Parent != "" {
-		fmt.Printf("%v ", cmd.Parent)
+		printf("%v ", cmd.Parent)
 	}
-	fmt.Printf("%v\n\n%v\n", cmd.Name, cmd.Long)
+	printf("%v\n\n%v\n", cmd.Name, cmd.Long)
 	if len(cmd.Flags) > 0 {
 		if err := Parse(); err != nil {
 			return err
 		}
-		fmt.Println()
-		fmt.Println("Command-specific flags:")
-		fmt.Println()
+		println()
+		println("Command-specific flags:")
+		println()
 		flagUsage(cmd.Flags)
 	}
 	return nil
@@ -134,7 +144,7 @@ func flagUsage(flagNames []string) {
 		flagUsageList = append(flagUsageList, []string{flagNamesAndDefault, flg.Usage})
 	}
 	for _, flg := range flagUsageList {
-		fmt.Printf("%-*s  %s\n", width, flg[0], flg[1])
+		printf("%-*s  %s\n", width, flg[0], flg[1])
 
 	}
 }
@@ -218,7 +228,7 @@ func readCommand(args []string) (*Command, error) {
 	var ok bool
 	if len(args) == 0 {
 		return &Command{
-			Cmd: Usage,
+			Cmd: func(cmd *Command) error { return Usage(nil) },
 		}, nil
 	}
 	var name = args[0]
@@ -258,6 +268,6 @@ func readCommand(args []string) (*Command, error) {
 		return cmd, nil
 	}
 	return &Command{
-		Cmd: Usage,
+		Cmd: func(cmd *Command) error { return Usage(nil) },
 	}, nil
 }
