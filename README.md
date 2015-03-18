@@ -6,7 +6,7 @@ Start [Go](http://golang.org) command line apps with ease
 ![tag](https://img.shields.io/github/tag/christophberger/start.svg)
 [![Build Status](https://travis-ci.org/christophberger/start.svg)](https://travis-ci.org/christophberger/start)
 [![BSD 3-clause License](http://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](http://opensource.org/licenses/BSD-3-Clause)
-[![goreportcard](http://img.shields.io/badge/goreportcard-rating-lightgrey.svg)](http://goreportcard.com/report/christophberger/start)
+[![goreportcard](http://img.shields.io/badge/goreportcard%20rating--lightgrey.svg)](http://goreportcard.com/report/christophberger/start)
 
 Executive Summary
 -----------------------------
@@ -28,7 +28,7 @@ The _start_ package for Go provides two basic features for command line applicat
 Motivation
 ----------
 
-I built the _start_ package mainly because existing flag packages do not provide any option for getting default values from environment variables or from a config file (let alone in a transparent way). And I decided to include command and subcommand parsing as well, making this package a complete "starter kit".
+I built the _start_ package mainly because existing flag packages did not provide any option for getting default values from environment variables or from a config file (let alone in a transparent way). And I decided to include command and subcommand parsing as well, making this package a complete "starter kit".
 
 
 
@@ -36,13 +36,16 @@ Status
 ------
 (_start_ uses [Semantic Versioning 2.0.0](http://semver.org/).)  
 
-v0.2.2.  
+v0.2.3.  
 NOT recommended for production yet.  
 
 Basic functionality is implemented.  
 Unit tests pass but no real-world tests were done yet.  
 
-Tested with Go 1.4.1 darwin/amd64 on Mac/OSX Yosemite and with Go 1.4 linux/arm on a Banana Pi running Bananian OS 15.01 r01.
+Tested with:
+* Go 1.4.2 darwin/amd64 on Mac/OSX Yosemite
+* Go 1.4.2 linux/arm on a Banana Pi running Bananian OS 15.01 r01
+* Go 1.4.2 win32/amd64 on Windows 7
 
 
 Installation
