@@ -81,6 +81,7 @@ func TestUp(t *testing.T) {
 	})
 
 	Up()
+
 	Convey("The test command should read all flags and parameters.", t, func() {
 		So(first, ShouldEqual, 10)
 		So(second, ShouldEqual, 20)
@@ -89,10 +90,22 @@ func TestUp(t *testing.T) {
 		So(params[1], ShouldEqual, "arg2")
 		So(description, ShouldEqual, "Testing testcmd")
 	})
+
 	Convey("The test command should contain only its private flags.", t, func() {
 		cmd := Commands["testcmd"]
 		So(len(cmd.Flags), ShouldEqual, 2)
 		So(cmd.Flags[0], ShouldEqual, "first")
 		So(cmd.Flags[1], ShouldEqual, "second")
 	})
+
+	Convey("The help command should be available", t, func() {
+		cmd := Commands["help"]
+		So(cmd, ShouldNotBeNil)
+		So(cmd.Name, ShouldEqual, "help")
+		So(cmd.Cmd, ShouldEqual, help)
+	})
+
+
 }
+	
+
