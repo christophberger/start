@@ -4,8 +4,6 @@
 //
 // This source code may import third-party source code whose
 // licenses are provided in the respective license files.
-//
-// This code must not be redistributed without these license files.
 
 package main
 
