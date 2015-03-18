@@ -132,13 +132,15 @@ func parse() error {
 func Up() {
 	err := Parse()
 	if err != nil {
-		fmt.Println(err)
+		fmt.Fprintln(os.Stderr, "Error while parsing flags:")
+		fmt.Fprintln(os.Stderr, err)
 		return
 	}
 
 	err = globalInit()
 	if err != nil {
-		fmt.Println(err)
+		fmt.Fprintln(os.Stderr, "Error during initialization:")
+		fmt.Fprintln(os.Stderr, err)
 		return
 	}
 
@@ -153,14 +155,16 @@ func Up() {
 
 	cmd, err := readCommand(flag.Args())
 	if err != nil {
-		fmt.Println(err)
+		fmt.Fprintln(os.Stderr, "Error while reading a command:")
+		fmt.Fprintln(os.Stderr, err)
 		// Execution can continue safely despite the error, because in this
 		// case, readCommand returns the Usage command.
 	}
 
 	err = cmd.Cmd(cmd)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Fprintln(os.Stderr, "Error on executing a command:")
+		fmt.Fprintln(os.Stderr, err)
 	}
 }
 
