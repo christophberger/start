@@ -3,26 +3,13 @@ Start
 
 Start [Go](http://golang.org) command line apps with ease
 
-![Version](http://img.shields.io/badge/Version-0.2.2-lightgrey.svg)
+
+
+![tag](https://img.shields.io/github/tag/christophberger/start.svg)
 [![Build Status](https://travis-ci.org/christophberger/start.svg)](https://travis-ci.org/christophberger/start)
-[![3-clause BSD License](http://img.shields.io/badge/License-BSD%203--Clause-lightgrey.svg)](http://opensource.org/licenses/BSD-3-Clause)
-[![Godoc Reference](http://img.shields.io/badge/GoDoc-Reference-lightgrey.svg)](http://godoc.org/github.com/christophberger/start)
-
-Status
-------
-(_start_ uses [Semantic Versioning 2.0.0](http://semver.org/).)  
-
-v0.2.2.  
-NOT recommended for production yet.  
-
-"Major version zero (0.y.z) is for initial development. Anything may change at any time. The public API should not be considered stable."  
-(Semantic Versioning Specification, item 4.)
-
-Basic functionality is implemented.  
-Unit tests pass but no real-world tests were done yet.  
-
-Tested with Go 1.3.3 darwin/amd64 on Mac/OSX Yosemite and with Go 1.3.3 linux/arm on a Banana Pi running Bananian OS 14.09.
-
+[![BSD 3-clause License](http://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](http://opensource.org/licenses/BSD-3-Clause)
+[![Godoc Reference](http://img.shields.io/badge/GoDoc%20Reference-grey.svg)](http://godoc.org/github.com/christophberger/start)
+[![goreportcard](http://img.shields.io/badge/goreportcard%20rating--grey.svg)](http://goreportcard.com/report/christophberger/start)
 
 Executive Summary
 -----------------------------
@@ -44,20 +31,31 @@ The _start_ package for Go provides two basic features for command line applicat
 Motivation
 ----------
 
-I built the _start_ package mainly because existing flag packages do not provide any option for getting default values from environment variables or from a config file (let alone in a transparent way). And I decided to include command and subcommand parsing as well, making this package a complete "starter kit".
+I built the _start_ package mainly because existing flag packages did not provide any option for getting default values from environment variables or from a config file (let alone in a transparent way). And I decided to include command and subcommand parsing as well, making this package a complete "starter kit".
 
 
-Requirements
-------------
 
-[Go](http://golang.org) 1.3 or later.
+Status
+------
+(_start_ uses [Semantic Versioning 2.0.0](http://semver.org/).)  
+
+v0.2.3.  
+NOT recommended for production yet.  
+
+Basic functionality is implemented.  
+Unit tests pass but no real-world tests were done yet.  
+
+Tested with:
+* Go 1.4.2 darwin/amd64 on Mac/OSX Yosemite
+* Go 1.4.2 linux/arm on a Banana Pi running Bananian OS 15.01 r01
+* Go 1.4.2 win32/amd64 on Windows 7
 
 
 Installation
 ------------
 
-```bash
-go get github.com/christophberger/start
+```
+go get gopkg.in/christophberger/start.v0
 ```
 
 Usage
@@ -65,7 +63,7 @@ Usage
 
 ```go
 import (
-	"github.com/christophberger/start"
+	"gopkg.in/christophberger/start.v0"
 )
 ```
 
@@ -79,7 +77,7 @@ var sp *string = flag.String("strname", "s", "default", "help message")
 var bp *bool = flag.Bool("boolname", "b", "help message") // default is false if boolean flag is missing
 
 var flagvar int
-flag.IntVar(&flagvar, "flagname", "f" 1234, "help message")
+flag.IntVarP(&flagvar, "flagname", "f" 1234, "help message")
 ```
 
 ...you know this already from the standard flag package - no learning curve here. The pflag package adds POSIX compatibility: --help and -h instead of -help. See the pflag readme for details.
@@ -108,12 +106,12 @@ And best of all, each setting has the same name in the config file, for the envi
 Use Add() to define a new command. Pass the name, a short and a long help message, optionally a list of command-specific flag names, and the function to call.
 
 ```go
-start.Add(&Command{
+start.Add(&start.Command{
 		Name:  "command",
 		Short: "short help message",
 		Long:  "long help for 'help command'",
 		Flags: []string{"socket", "port"},
-		Cmd:   func(cmd *Command) error {
+		Cmd:   func(cmd *start.Command) error {
 				fmt.Println("Done.")
 		}
 })
@@ -124,13 +122,13 @@ The Cmd function receives its Command struct. It can get the command line via th
 Define subcommands in the same way but add the name of the parent command:
 
 ```go
-start.Add(&Command{
+start.Add(&start.Command{
 		Name:  "command",
 		Parent: "parentcmd"
 		Short: "short help message",
 		Long:  "long help for 'help command'",
 		Flags: []string{"socket", "port"},
-		Cmd:   func(cmd *Command) error {
+		Cmd:   func(cmd *start.Command) error {
 				fmt.Println("Done.")
 		}
 })
@@ -220,7 +218,7 @@ Define and implement some commands:
 
 ```go
 func main() {
-	start.Add(&Command{
+	start.Add(&start.Command{
 		Name: "translate",
 		OwnFlags: []string{"voice", "speak"}, // voice and speak make only sense for the translate command
 		Short: "translate [<options>] <string>",
@@ -228,13 +226,13 @@ func main() {
 		Cmd: translate,
 	})
 
-	start.Add(&Command{
+	start.Add(&start.Command{
 		Name: "check",
 		Short: "check [style|spelling]",
 		Long: "Perform various checks",
 	})
 
-	start.Add(&Command{
+	start.Add(&start.Command{
 		Parent: "check"
 		Name: "style",
 		Short: "check style <string>",
@@ -242,7 +240,7 @@ func main() {
 		Cmd: checkstyle,
 	})
 
-	start.Add("check", &Command{
+	start.Add("check", &start.Command{
 		Parent: "check"
 		Name: "spelling",
 		Short: "check spelling <string>",
@@ -254,7 +252,7 @@ func main() {
 }
 
 
-func translate(cmd *Command) error {
+func translate(cmd *start.Command) error {
 	source := cmd.Args[0]
 	target := google.Translate(sl, source, tl)  // this API method is completely made up
 
@@ -264,28 +262,32 @@ func translate(cmd *Command) error {
 	return nil
 }
 
-func checkstyle(cmd *Command) error  {
+func checkstyle(cmd *start.Command) error  {
 	// real-life code should check for len(cmd.Args) first
 	source := cmd.Args[0]
 	stdout.Println(office.StyleChecker(source))  // also made up
 	return nil
 }
 
-func checkspelling(cmd *Command) error {
+func checkspelling(cmd *start.Command) error {
 	source := cmd.Args[0]
 	stdout.Println(aspell.Check(source))  // just an imaginary method
 	return nil
 }
 ```
 
+TODO
+----
+
+* Add predefined "version" and "help" commands OR flags.
+* Factor out most of this large README into [[Wiki|TOC]] pages.
+* Change the mock-up code from the Example section into executable code.
+
 
 Change Log
 ----------
 
 See CHANGES.md for details.
-
-0.2.1 - Fix: Visibility issues.
-0.2.0 - First release with the basic functionality done.
 
 
 About the name

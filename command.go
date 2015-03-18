@@ -1,3 +1,10 @@
+// Copyright (c) Christoph Berger. All rights reserved.
+// Use of this source code is governed by the BSD (3-Clause)
+// License that can be found in the LICENSE.txt file.
+//
+// This source code may import third-party source code whose
+// licenses are provided in the respective license files.
+
 package start
 
 import (
@@ -48,6 +55,16 @@ func (cmd *Command) Add(subcmd *Command) error {
 	return nil
 }
 
+// Helper functions for Usage: println & printf print to stderr
+
+func println(args ...interface{}) {
+	fmt.Fprintln(os.Stderr, args...)
+}
+
+func printf(format string, args ...interface{}) {
+	fmt.Fprintf(os.Stderr, format, args...)
+}
+
 // Usage prints a description of the application and the short help string
 // of every command, when called with a nil argument.
 // When called with a command as parameter, Usage prints this command's
@@ -60,48 +77,52 @@ func Usage(cmd *Command) error {
 	} else {
 		err := commandUsage(cmd)
 		if err != nil {
-			fmt.Println(err)
+			println(err)
 		}
 	}
-	fmt.Println()
+	println()
 	return nil
 }
 
 func applicationUsage() {
-	fmt.Println()
-	fmt.Println(filepath.Base(os.Args[0]))
-	fmt.Println()
-	if len(Description) > 0 {
-		fmt.Println(Description)
-		fmt.Println()
+	println()
+	println(filepath.Base(os.Args[0]))
+	println()
+	if len(description) > 0 {
+		println(description)
+		println()
 	}
 	if len(Commands) > 0 {
 		width := maxCmdNameLen()
-		fmt.Println("Available commands:")
-		fmt.Println()
+		println("Available commands:")
+		println()
 		for _, c := range Commands {
-			fmt.Printf("%-*s  %s\n", width, c.Name, c.Short)
+			printf("%-*s  %s\n", width, c.Name, c.Short)
 		}
 	}
 	globalFlags := checkFlags(nil)
 	if len(globalFlags) > 0 {
-		fmt.Println("Available global flags:")
+		println("Available global flags:")
 		flagUsage(nil)
 	}
+	println()
+	println("Type help <command> to get help for a specific command.")
+	println()
 }
 
 func commandUsage(cmd *Command) error {
+	println()
 	if cmd.Parent != "" {
-		fmt.Printf("%v ", cmd.Parent)
+		printf("%v ", cmd.Parent)
 	}
-	fmt.Printf("%v\n\n%v\n", cmd.Name, cmd.Long)
+	printf("%v\n\n%v\n", cmd.Name, cmd.Long)
 	if len(cmd.Flags) > 0 {
 		if err := Parse(); err != nil {
 			return err
 		}
-		fmt.Println()
-		fmt.Println("Command-specific flags:")
-		fmt.Println()
+		println()
+		println("Command-specific flags:")
+		println()
 		flagUsage(cmd.Flags)
 	}
 	return nil
@@ -123,9 +144,21 @@ func flagUsage(flagNames []string) {
 		flagUsageList = append(flagUsageList, []string{flagNamesAndDefault, flg.Usage})
 	}
 	for _, flg := range flagUsageList {
-		fmt.Printf("%-*s  %s\n", width, flg[0], flg[1])
+		printf("%-*s  %s\n", width, flg[0], flg[1])
 
 	}
+}
+
+func help(cmd *Command) error {
+	if len(cmd.Args) == 0 {
+		applicationUsage()
+		return nil
+	}
+	command := Commands[cmd.Args[0]]
+	if command == nil {
+		return errors.New("Unknown command: " + cmd.Args[0])
+	}
+	return commandUsage(command)
 }
 
 // maxCmdNameLen returns the length of the longest command name.
@@ -186,16 +219,17 @@ func checkFlags(c *Command) map[string]bool {
 // readCommand extracts the command (and any subcommand, if applicable) from the
 // list of arguments.
 // Parameter args is the list of arguments *after* being parsed by flag.Parse().
-// The first item of args is expected to be a command name. If that command has
+// The first item of args must be a command name. If that command has
 // subcommands defined, the second item must contain the name of a subcommand.
-// If any error occurs, readCommand returns an error and the pre-defined Usage
-// command.
+// If any error occurs, readCommand returns an error and a Command calling the
+// pre-defined Usage function
 func readCommand(args []string) (*Command, error) {
 	var cmd, subcmd *Command
 	var ok bool
 	if len(args) == 0 {
-		Usage(nil)
-		os.Exit(0)
+		return &Command{
+			Cmd: func(cmd *Command) error { return Usage(nil) },
+		}, nil
 	}
 	var name = args[0]
 	if cmd, ok = Commands[name]; ok {
@@ -216,7 +250,7 @@ func readCommand(args []string) (*Command, error) {
 						errmsg += n.Name + ", "
 					}
 					return &Command{
-						Cmd: Usage,
+						Cmd: func(cmd *Command) error { return Usage(cmd) },
 					}, errors.New(errmsg)
 				}
 			}
@@ -232,12 +266,12 @@ func readCommand(args []string) (*Command, error) {
 			}
 			errmsg := fmt.Sprintf("Unknown flag%s: %v", s, notMyFlags)
 			return &Command{
-				Cmd: Usage,
+				Cmd: func(cmd *Command) error { return Usage(cmd) },
 			}, errors.New(errmsg)
 		}
 		return cmd, nil
 	}
 	return &Command{
-		Cmd: Usage,
+		Cmd: func(cmd *Command) error { return Usage(nil) },
 	}, nil
 }

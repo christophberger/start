@@ -8,12 +8,13 @@
 //
 // See the file README.md about usage of the start package.
 //
-// Copyright 2014 Christoph Berger. All rights reserved.
+// Copyright (c) Christoph Berger. All rights reserved.
 // Use of this source code is governed by the BSD (3-Clause)
 // License that can be found in the LICENSE.txt file.
 //
-// This source code imports third-party source code whose
+// This source code may import third-party source code whose
 // licenses are provided in the respective license files.
+//
 package start
 
 import (
@@ -30,9 +31,6 @@ import (
 // Commands is the global command list.
 var Commands = CommandMap{}
 
-// Description is a string used by the Usage command. It should be set to a description of the application before calling Up(). If a user runs the application with no arguments, Usage() will print this description string and list the available commands.
-var Description string
-
 // Private package variables.
 //
 // Note: I do explicitly make use of my right to use package-global variables.
@@ -44,13 +42,41 @@ var cfgFileName string
 var customName bool
 var alreadyParsed bool
 var privateFlags = privateFlagsMap{}
+var description string
+var version string
+
+// GlobalInit is a function for initializing resources for all commands.
+// GlobalInit is called AFTER parsing and BEFORE invoking a command.
+// If needed, assign your own function via SetInitFunc() before calling Up().
+var globalInit func() error
 
 // UseConfigFile allows to set a custom file name and/or path.
 // Call this before Parse() or Up(), respectively. Afterwards it has of course
 // no effect.
-func UseConfigFile(fn string) {
+func SetConfigFile(fn string) {
 	cfgFileName = fn
 	customName = true
+}
+
+// SetDescription sets a description of the app. It receives a string containing
+// a brief description of the application. If a user runs the application with
+// no arguments, or if the user invokes the help command, Usage() will print
+// this description string and list the available commands.
+func SetDescription(descr string) {
+	description = descr
+}
+
+// SetVersion sets the version number of the application. Used by the pre-defined
+// version command.
+func SetVersion(ver string) {
+	version = ver
+}
+
+// SetInitFunc sets a function that is called after parsing the variables
+// but before calling the command. Useful for global initialization that affects
+// all commands alike.
+func SetInitFunc(initf func() error) {
+	globalInit = initf
 }
 
 // Parse initializes all flag variables from command line flags, environment
@@ -103,18 +129,43 @@ func parse() error {
 }
 
 // Up parses all flags and then evaluates and executes the command line.
-func Up() error {
+func Up() {
 	err := Parse()
 	if err != nil {
-		return err
+		fmt.Fprintln(os.Stderr, "Error while parsing flags:")
+		fmt.Fprintln(os.Stderr, err)
+		return
 	}
+
+	err = globalInit()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Error during initialization:")
+		fmt.Fprintln(os.Stderr, err)
+		return
+	}
+
+	Commands["help"] =
+		&Command{
+			Name:  "help",
+			Short: "List commands, or describe a specific command",
+			Long: "List the available commands.\n" +
+				"Use help <command> to get detailed help for a specific command.",
+			Cmd: help,
+		}
+
 	cmd, err := readCommand(flag.Args())
 	if err != nil {
-		fmt.Println(err)
+		fmt.Fprintln(os.Stderr, "Error while reading a command:")
+		fmt.Fprintln(os.Stderr, err)
 		// Execution can continue safely despite the error, because in this
 		// case, readCommand returns the Usage command.
 	}
-	return cmd.Cmd(cmd)
+
+	err = cmd.Cmd(cmd)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Error on executing a command:")
+		fmt.Fprintln(os.Stderr, err)
+	}
 }
 
 // ConfigFilePath returns the path of the config file that has been read in.
@@ -129,4 +180,10 @@ func ConfigFilePath() string {
 // by the flags.
 func ConfigFileToml() toml.Document {
 	return cfgFile.Toml()
+}
+
+func init() {
+	globalInit = func() error {
+		return nil
+	}
 }

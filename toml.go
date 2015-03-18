@@ -1,11 +1,9 @@
-// Copyright 2014 Christoph Berger. All rights reserved.
+// Copyright (c) Christoph Berger. All rights reserved.
 // Use of this source code is governed by the BSD (3-Clause)
 // License that can be found in the LICENSE.txt file.
 //
-// This source code imports third-party source code whose
+// This source code may import third-party source code whose
 // licenses are provided in the respective license files.
-//
-// See the file README.md about usage of the start package.
 
 package start
 

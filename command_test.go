@@ -1,3 +1,10 @@
+// Copyright (c) Christoph Berger. All rights reserved.
+// Use of this source code is governed by the BSD (3-Clause)
+// License that can be found in the LICENSE.txt file.
+//
+// This source code may import third-party source code whose
+// licenses are provided in the respective license files.
+
 package start
 
 import (
@@ -59,6 +66,7 @@ func TestCommands(t *testing.T) {
 
 	var yes bool
 	var size int
+	var global string
 
 	// ContinueOnError is required when running goconvey as server; otherwise, unrecognized
 	// flags that are passed to the test executable will cause an error:
@@ -74,6 +82,7 @@ func TestCommands(t *testing.T) {
 
 	flag.BoolVarP(&yes, "yes", "y", false, "A boolean flag")
 	flag.IntVarP(&size, "size", "s", 23, "An int flag")
+	flag.StringVarP(&global, "global", "g", "global flag", "A global string flag")
 
 	Commands = make(CommandMap) // Ensure the Commands map starts empty for the test
 
@@ -88,7 +97,7 @@ func TestCommands(t *testing.T) {
 	})
 
 	Convey("When setting up some commands, then...", t, func() {
-		Description = "This is the test application for the start package."
+		SetDescription("This is the test application for the start package.")
 
 		Add(&Command{
 			Name:  "test",
