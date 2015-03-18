@@ -8,12 +8,15 @@
 //
 // See the file README.md about usage of the start package.
 //
-// Copyright 2014 Christoph Berger. All rights reserved.
+// Copyright (c) Christoph Berger. All rights reserved.
 // Use of this source code is governed by the BSD (3-Clause)
 // License that can be found in the LICENSE.txt file.
 //
-// This source code imports third-party source code whose
+// This source code may import third-party source code whose
 // licenses are provided in the respective license files.
+//
+// This code must not be redistributed without these license files.
+//
 package start
 
 import (
@@ -134,17 +137,29 @@ func Up() {
 		fmt.Println(err)
 		return
 	}
+
 	err = globalInit()
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
+
+	Commands["help"] =
+		&Command{
+			Name:  "help",
+			Short: "List commands, or describe a specific command",
+			Long: "List the available commands.\n" +
+				"Use help <command> to get detailed help for a specific command.",
+			Cmd: help,
+		}
+
 	cmd, err := readCommand(flag.Args())
 	if err != nil {
 		fmt.Println(err)
 		// Execution can continue safely despite the error, because in this
 		// case, readCommand returns the Usage command.
 	}
+
 	err = cmd.Cmd(cmd)
 	if err != nil {
 		fmt.Println(err)
