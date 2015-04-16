@@ -50,7 +50,7 @@ var version string
 // If needed, assign your own function via SetInitFunc() before calling Up().
 var globalInit func() error
 
-// UseConfigFile allows to set a custom file name and/or path.
+// SetConfigFile allows to set a custom file name and/or path.
 // Call this before Parse() or Up(), respectively. Afterwards it has of course
 // no effect.
 func SetConfigFile(fn string) {
@@ -183,6 +183,7 @@ func ConfigFileToml() toml.Document {
 }
 
 func init() {
+	version = "1.0" // SetVersion() overrides this default.
 	globalInit = func() error {
 		return nil
 	}
