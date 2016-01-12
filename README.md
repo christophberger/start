@@ -46,6 +46,9 @@ Basic functionality is implemented.
 Unit tests pass but no real-world tests were done yet.  
 
 Tested with:
+
+* Go 1.5.1 darwin/amd64 on Mac/OSX El Capitan
+
 * Go 1.4.2 darwin/amd64 on Mac/OSX Yosemite
 * Go 1.4.2 linux/arm on a Banana Pi running Bananian OS 15.01 r01
 * Go 1.4.2 win32/amd64 on Windows 7
