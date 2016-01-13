@@ -161,6 +161,11 @@ func help(cmd *Command) error {
 	return commandUsage(command)
 }
 
+func showVersion(cmd *Command) error {
+	println(filepath.Base(os.Args[0]) + " version " + version)
+	return nil
+}
+
 // maxCmdNameLen returns the length of the longest command name.
 func maxCmdNameLen() int {
 	maxLength := 0
@@ -266,7 +271,7 @@ func readCommand(args []string) (*Command, error) {
 			}
 			errmsg := fmt.Sprintf("Unknown flag%s: %v", s, notMyFlags)
 			return &Command{
-				Cmd: func(cmd *Command) error { return Usage(cmd) },
+				Cmd: Usage,
 			}, errors.New(errmsg)
 		}
 		return cmd, nil

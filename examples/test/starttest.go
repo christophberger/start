@@ -9,8 +9,9 @@ package main
 
 import (
 	"fmt"
-	flag "github.com/ogier/pflag"
+
 	"github.com/christophberger/start"
+	flag "github.com/ogier/pflag"
 )
 
 func main() {
@@ -41,8 +42,8 @@ func main() {
 		Long:  "Command flags helps testing flags.",
 		Cmd: func(cmd *start.Command) error {
 			fmt.Println("This is the testflags command.")
-			fmt.Printf("--yes is %v", yes)
-			fmt.Printf("--size is %v", size)
+			fmt.Println("--yes is", yes)
+			fmt.Println("--size is", size)
 			return nil
 		},
 	})
