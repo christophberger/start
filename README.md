@@ -5,7 +5,6 @@ Start [Go](http://golang.org) command line apps with ease
 
 
 
-![Tag](https://img.shields.io/github/tag/christophberger/start.svg)
 [![Build Status](https://travis-ci.org/christophberger/start.svg)](https://travis-ci.org/christophberger/start)
 [![BSD 3-clause License](http://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](http://opensource.org/licenses/BSD-3-Clause)
 [![Godoc Reference](http://img.shields.io/badge/GoDoc-Reference-grey.svg)](http://godoc.org/github.com/christophberger/start)
@@ -39,7 +38,8 @@ Status
 ------
 (_start_ uses [Semantic Versioning 2.0.0](http://semver.org/).)  
 
-![Release](https://img.shields.io/github/release/christophberger/start.svg)
+![Release](https://img.shields.io/github/release/christophberger/start.svg)  
+![Version](https://img.shields.io/github/tag/christophberger/start.svg)
 
 Basic functionality is implemented.  
 Unit tests pass but no real-world tests were done yet.  
