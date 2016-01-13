@@ -162,7 +162,7 @@ func help(cmd *Command) error {
 }
 
 func showVersion(cmd *Command) error {
-	println(filepath.Base(os.Args[0]) + ", version " + version)
+	println(filepath.Base(os.Args[0]) + " version " + version)
 	return nil
 }
 
