@@ -9,8 +9,9 @@ package main
 
 import (
 	"fmt"
-	flag "github.com/ogier/pflag"
+
 	"github.com/christophberger/start"
+	flag "github.com/ogier/pflag"
 )
 
 func main() {

@@ -12,7 +12,6 @@ import (
 	"testing"
 
 	flag "github.com/ogier/pflag"
-
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -45,7 +44,6 @@ func TestParse(t *testing.T) {
 			os.Setenv("START_ASTRING", "")
 		})
 	})
-
 }
 
 func TestUp(t *testing.T) {
@@ -111,8 +109,4 @@ func TestUp(t *testing.T) {
 		So(cmd.Name, ShouldEqual, "help")
 		So(cmd.Cmd, ShouldEqual, help)
 	})
-
-
 }
-	
-
