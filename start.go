@@ -147,10 +147,18 @@ func Up() {
 	Commands["help"] =
 		&Command{
 			Name:  "help",
-			Short: "List commands, or describe a specific command",
-			Long: "List the available commands.\n" +
+			Short: "Lists commands, or describes a specific command",
+			Long: "Lists the available commands.\n" +
 				"Use help <command> to get detailed help for a specific command.",
 			Cmd: help,
+		}
+
+	Commands["version"] =
+		&Command{
+			Name:  "version",
+			Short: "Shows the version number.",
+			Long:  "Shows the application's version number.",
+			Cmd:   showVersion,
 		}
 
 	cmd, err := readCommand(flag.Args())
