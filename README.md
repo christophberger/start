@@ -57,7 +57,7 @@ Installation
 ------------
 
 ```
-go get gopkg.in/christophberger/start.v0
+go get github.com/christophberger/start
 ```
 
 Usage
@@ -65,7 +65,7 @@ Usage
 
 ```go
 import (
-	"gopkg.in/christophberger/start.v0"
+	"github.com/christophberger/start"
 )
 ```
 
