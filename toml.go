@@ -77,16 +77,14 @@ func (c *configFile) findAndReadTomlFile(name string) error {
 	}
 
 	// environment variable is not set, or the config file was not found there,
-	// so get the user's home dir instead
+	// so place the config file into ~/.config/<application>/.
 	cfgPath = GetHomeDir()
 	if len(cfgPath) > 0 {
-		var path string
 		if len(name) == 0 {
-			// no name supplied; in $HOME use .<application>
-			path = filepath.Join(cfgPath, "."+appName())
-		} else {
-			path = filepath.Join(cfgPath, name)
+			// no name supplied; use config.toml
+			name = "config.toml"
 		}
+		path := filepath.Join(cfgPath, ".config", appName(), name)
 		c.doc, err = c.readTomlFile(path)
 		if err == nil {
 			return nil

@@ -154,9 +154,9 @@ By default, _start_ looks for a configuration file in the following places:
 
 * In the path defined through the environment variable &lt;APPLICATION&gt;&#95;CFGPATH
 * In the working directory
-* In the user's home directory
+* In the user's home, in .config/&lt;appname> directory
 
-The name of the configuration file is either &lt;application&gt;.toml or .&lt;application&gt; (the latter form is preferred when used in a user's home dir on Unix-like systems).
+The name of the configuration file is either &lt;application&gt;.toml or .&lt;config.toml&gt; (if the file is located in $HOME/.config/&lt;appname>).
 
 You can also set a custom name:
 
