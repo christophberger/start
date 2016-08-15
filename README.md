@@ -46,7 +46,8 @@ Unit tests pass but no real-world tests were done yet.
 
 Tested with:
 
-* Go 1.6 darvin/amd64 on Mac/OSX El Capitan
+* Go 1.6.3 darwin/amd64 on Mac/OSX El Capitan
+* Go 1.6.0 darwin/amd64 on Mac/OSX El Capitan
 * Go 1.5.1 darwin/amd64 on Mac/OSX El Capitan
 * Go 1.4.2 darwin/amd64 on Mac/OSX Yosemite
 * Go 1.4.2 linux/arm on a Banana Pi running Bananian OS 15.01 r01
