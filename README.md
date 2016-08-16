@@ -10,7 +10,7 @@ Start [Go](http://golang.org) command line apps with ease
 [![Godoc Reference](http://img.shields.io/badge/GoDoc-Reference-grey.svg)](http://godoc.org/github.com/christophberger/start)
 [![goreportcard](http://img.shields.io/badge/goreportcard-rating-grey.svg)](http://goreportcard.com/report/christophberger/start)
 
-![Flag](flag.svg)
+![Flag](flag.png)
 
 
 Executive Summary
