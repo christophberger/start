@@ -1,0 +1,621 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 800 600" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.41421;">
+    <g transform="matrix(0.872439,0.488723,-0.488723,0.872439,231.215,-151.851)">
+        <g transform="matrix(1,0,0,1,-20,-2)">
+            <g transform="matrix(1,0,0,1,-10,-9)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,50)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,109)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,168)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,-9)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,50)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,109)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,168)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,-9)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,50)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,109)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,168)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,-9)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,50)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,109)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,168)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+        </g>
+        <g transform="matrix(1,0,0,1,40,-2)">
+            <g transform="matrix(1,0,0,1,-10,-9)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,50)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,109)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,168)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,-9)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,50)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,109)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,168)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,-9)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,50)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,109)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,168)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,-9)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,50)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,109)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,168)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+        </g>
+        <g transform="matrix(1,0,0,1,100,-2)">
+            <g transform="matrix(1,0,0,1,-10,-9)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,50)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,109)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,168)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,-9)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,50)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,109)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,168)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,-9)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,50)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,109)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,168)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,-9)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,50)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,109)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,168)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+        </g>
+        <g transform="matrix(1,0,0,1,160,-2)">
+            <g transform="matrix(1,0,0,1,-10,-9)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,50)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,109)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,168)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,-9)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,50)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,109)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,168)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,-9)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,50)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,109)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,168)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,-9)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,50)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,109)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,168)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+        </g>
+        <g transform="matrix(1,0,0,1,220,-2)">
+            <g transform="matrix(1,0,0,1,-10,-9)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,50)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,109)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,168)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,-9)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,50)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,109)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,168)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,-9)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,50)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,109)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,168)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,-9)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,50)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,109)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,168)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+        </g>
+        <g transform="matrix(1,0,0,1,280,-2)">
+            <g transform="matrix(1,0,0,1,-10,-9)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,50)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,109)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,168)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,-9)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,50)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,109)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,168)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,-9)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,50)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,109)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,168)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,-9)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,50)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,109)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,168)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+        </g>
+        <g transform="matrix(-1,0,0,1,554,28)">
+            <g transform="matrix(1,0,0,1,-10,-9)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,50)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,109)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,168)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,-9)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,50)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,109)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,168)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,-9)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,50)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,109)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,168)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,-9)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,50)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,109)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,168)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+        </g>
+        <g transform="matrix(-1,0,0,1,614,28)">
+            <g transform="matrix(1,0,0,1,-10,-9)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,50)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,109)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,168)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,-9)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,50)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,109)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,168)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,-9)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,50)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,109)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,168)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,-9)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,50)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,109)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,168)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+        </g>
+        <g transform="matrix(-1,0,0,1,674,28)">
+            <g transform="matrix(1,0,0,1,-10,-9)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,50)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,109)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,168)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,-9)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,50)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,109)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,168)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,-9)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,50)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,109)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,168)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,-9)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,50)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,109)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,168)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+        </g>
+        <g transform="matrix(-1,0,0,1,734,28)">
+            <g transform="matrix(1,0,0,1,-10,-9)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,50)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,109)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,168)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,-9)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,50)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,109)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,168)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,-9)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,50)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,109)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,168)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,-9)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,50)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,109)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,168)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+        </g>
+        <g transform="matrix(-1,0,0,1,794,28)">
+            <g transform="matrix(1,0,0,1,-10,-9)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,50)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,109)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,168)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,-9)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,50)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,109)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,168)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,-9)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,50)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,109)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,168)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,-9)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,50)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,109)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,168)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+        </g>
+        <g transform="matrix(-1,0,0,1,854,28)">
+            <g transform="matrix(1,0,0,1,-10,-9)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,50)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,109)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,168)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,-9)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,50)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,109)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,168)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,-9)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,50)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,109)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,-10,168)">
+                <rect x="267" y="169" width="30" height="30" style="fill:black;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,-9)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,50)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,109)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+            <g transform="matrix(1,0,0,1,20,168)">
+                <rect x="267" y="169" width="30" height="30" style="fill:white;"/>
+            </g>
+        </g>
+        <path d="M597,158L498.428,158L417.363,158L237,158L237,395L597,395L597,158Z" style="fill:none;stroke-width:1px;stroke:rgb(64,64,64);"/>
+    </g>
+    <g transform="matrix(0.872439,0.488723,-0.488723,0.872439,231.215,-151.851)">
+        <rect x="216" y="158" width="21" height="418" style="fill:url(#_Linear1);stroke-width:1px;stroke:rgb(64,64,64);"/>
+    </g>
+    <g transform="matrix(0.872439,0.488723,-0.488723,0.872439,233.17,-155.341)">
+        <ellipse cx="226.5" cy="162" rx="10.5" ry="5" style="fill:url(#_Linear2);stroke-width:1px;stroke:rgb(64,64,64);"/>
+    </g>
+    <g transform="matrix(0.872439,0.488723,-0.488723,0.872439,28.8835,209.339)">
+        <ellipse cx="226.5" cy="162" rx="10.5" ry="5" style="fill:url(#_Linear3);"/>
+    </g>
+    <defs>
+        <linearGradient id="_Linear1" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(21,0,0,418,216,367)"><stop offset="0%" style="stop-color:rgb(171,109,0);stop-opacity:1"/><stop offset="50%" style="stop-color:rgb(255,199,86);stop-opacity:1"/><stop offset="100%" style="stop-color:rgb(93,59,0);stop-opacity:1"/></linearGradient>
+        <linearGradient id="_Linear2" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(21,0,0,10,216,162)"><stop offset="0%" style="stop-color:rgb(171,109,0);stop-opacity:1"/><stop offset="50%" style="stop-color:rgb(255,199,86);stop-opacity:1"/><stop offset="100%" style="stop-color:rgb(93,59,0);stop-opacity:1"/></linearGradient>
+        <linearGradient id="_Linear3" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(21,0,0,10,216,162)"><stop offset="0%" style="stop-color:rgb(171,109,0);stop-opacity:1"/><stop offset="50%" style="stop-color:rgb(255,199,86);stop-opacity:1"/><stop offset="100%" style="stop-color:rgb(93,59,0);stop-opacity:1"/></linearGradient>
+    </defs>
+</svg>
