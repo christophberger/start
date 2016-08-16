@@ -41,8 +41,7 @@ Status
 ------
 (_start_ uses [Semantic Versioning 2.0.0](http://semver.org/).)  
 
-![Release](https://img.shields.io/github/release/christophberger/start.svg)  
-![Version](https://img.shields.io/github/tag/christophberger/start.svg)
+![Version](https://img.shields.io/github/tag/christophberger/start.svg) ![Release](https://img.shields.io/github/release/christophberger/start.svg)
 
 Basic functionality is implemented.  
 Unit tests pass but no real-world tests were done yet.  
