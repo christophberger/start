@@ -48,6 +48,7 @@ Unit tests pass but no real-world tests were done yet.
 
 Tested with:
 
+* Go 1.8.0 darwin/amd64 on Mac/OSX El Capitan
 * Go 1.7.0 darwin/amd64 on Mac/OSX El Capitan
 * Go 1.6.3 darwin/amd64 on Mac/OSX El Capitan
 * Go 1.6.0 darwin/amd64 on Mac/OSX El Capitan
