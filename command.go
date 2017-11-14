@@ -237,46 +237,49 @@ func readCommand(args []string) (*Command, error) {
 		}, nil
 	}
 	var name = args[0]
-	if cmd, ok = Commands[name]; ok {
-		// command found. Remove it from the argument list.
-		args = args[1:]
-		if len(cmd.children) > 0 {
-			var subname = args[0]
-			subcmd, ok = cmd.children[subname]
-			if ok {
-				// subcommand found.
-				args = args[1:]
-				cmd = subcmd
-			} else {
-				// no subcommand passed in, so cmd should have a Cmd to execute
-				if cmd.Cmd == nil {
-					errmsg := "Command " + cmd.Name + " requires one of these subcommands: "
-					for _, n := range cmd.children {
-						errmsg += n.Name + ", "
-					}
-					return &Command{
-						Cmd: func(cmd *Command) error { return Usage(cmd) },
-					}, errors.New(errmsg)
-				}
-			}
-		} else {
-			cmd = Commands[name]
-		}
-		cmd.Args = args
-		notMyFlags := checkFlags(cmd)
-		s := ""
-		if len(notMyFlags) > 0 {
-			if len(notMyFlags) > 1 {
-				s = "s"
-			}
-			errmsg := fmt.Sprintf("Unknown flag%s: %v", s, notMyFlags)
-			return &Command{
-				Cmd: Usage,
-			}, errors.New(errmsg)
-		}
-		return cmd, nil
+	cmd, ok = Commands[name]
+	if !ok {
+		return &Command{
+			Cmd: func(cmd *Command) error { return Usage(nil) },
+		}, nil
 	}
-	return &Command{
-		Cmd: func(cmd *Command) error { return Usage(nil) },
-	}, nil
+	// command found. Remove it from the argument list.
+	args = args[1:]
+	if len(cmd.children) > 0 {
+		if len(args) == 0 {
+		}
+		var subname = args[0]
+		subcmd, ok = cmd.children[subname]
+		if ok {
+			// subcommand found.
+			args = args[1:]
+			cmd = subcmd
+		} else {
+			// no subcommand passed in, so cmd should have a Cmd to execute
+			if cmd.Cmd == nil {
+				errmsg := "Command " + cmd.Name + " requires one of these subcommands: "
+				for _, n := range cmd.children {
+					errmsg += n.Name + ", "
+				}
+				return &Command{
+					Cmd: func(cmd *Command) error { return Usage(cmd) },
+				}, errors.New(errmsg)
+			}
+		}
+	} else {
+		cmd = Commands[name]
+	}
+	cmd.Args = args
+	notMyFlags := checkFlags(cmd)
+	s := ""
+	if len(notMyFlags) > 0 {
+		if len(notMyFlags) > 1 {
+			s = "s"
+		}
+		errmsg := fmt.Sprintf("Unknown flag%s: %v", s, notMyFlags)
+		return &Command{
+			Cmd: Usage,
+		}, errors.New(errmsg)
+	}
+	return cmd, nil
 }
