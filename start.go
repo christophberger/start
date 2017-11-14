@@ -28,27 +28,29 @@ import (
 
 // Public variables:
 
-// Commands is the global command list.
-var Commands = CommandMap{}
+var (
+	// Commands is the global command list.
+	Commands = CommandMap{}
 
-// Private package variables.
-//
-// Note: I do explicitly make use of my right to use package-global variables.
-// First, this package acts like a Singleton. No accidental reuse can happen.
-// Second, these variables do not pollute the global name spaces, as they are
-// package variables and private.
-var cfgFile *configFile
-var cfgFileName string
-var customName bool
-var alreadyParsed bool
-var privateFlags = privateFlagsMap{}
-var description string
-var version string
+	// Private package variables.
+	//
+	// Note: I do explicitly make use of my right to use package-global variables.
+	// First, this package acts like a Singleton. No accidental reuse can happen.
+	// Second, these variables do not pollute the global name spaces, as they are
+	// package variables and private.
+	cfgFile       *configFile
+	cfgFileName   string
+	customName    bool
+	alreadyParsed bool
+	privateFlags  = privateFlagsMap{}
+	description   string
+	version       string
 
-// GlobalInit is a function for initializing resources for all commands.
-// GlobalInit is called AFTER parsing and BEFORE invoking a command.
-// If needed, assign your own function via SetInitFunc() before calling Up().
-var globalInit func() error
+	// GlobalInit is a function for initializing resources for all commands.
+	// GlobalInit is called AFTER parsing and BEFORE invoking a command.
+	// If needed, assign your own function via SetInitFunc() before calling Up().
+	globalInit func() error
+)
 
 // SetConfigFile allows to set a custom file name and/or path.
 // Call this before Parse() or Up(), respectively. Afterwards it has of course
