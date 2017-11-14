@@ -31,4 +31,5 @@ _testmain.go
 *.test
 todo.md
 tags
-test
+examples/test/starttest
+realize.yaml
