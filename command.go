@@ -13,7 +13,7 @@ import (
 	"os"
 	"path/filepath"
 
-	flag "github.com/ogier/pflag"
+	flag "github.com/spf13/pflag"
 )
 
 // Add adds a command to either the global Commands map, or, if the command has a parent value, to its parent command as a subcommand.

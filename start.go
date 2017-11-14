@@ -23,7 +23,7 @@ import (
 	"strings"
 
 	"github.com/laurent22/toml-go"
-	flag "github.com/ogier/pflag"
+	flag "github.com/spf13/pflag"
 )
 
 // Public variables:

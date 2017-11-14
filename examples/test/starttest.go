@@ -11,7 +11,7 @@ import (
 	"fmt"
 
 	"github.com/christophberger/start"
-	flag "github.com/ogier/pflag"
+	flag "github.com/spf13/pflag"
 )
 
 func main() {
