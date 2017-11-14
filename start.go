@@ -26,14 +26,14 @@ import (
 	flag "github.com/spf13/pflag"
 )
 
-// Public variables:
-
 var (
+	// Public variables:
+
 	// Commands is the global command list.
 	Commands = CommandMap{}
 
 	// Private package variables.
-	//
+
 	// Note: I do explicitly make use of my right to use package-global variables.
 	// First, this package acts like a Singleton. No accidental reuse can happen.
 	// Second, these variables do not pollute the global name spaces, as they are
