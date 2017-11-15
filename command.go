@@ -249,28 +249,21 @@ func readCommand(args []string) (*Command, error) {
 	args = args[1:]
 
 	if len(cmd.children) == 0 {
-		// No subcommands defined. Check the flags and return the command.
-		cmd.Args = args
-		notMyFlags := checkFlags(cmd)
-		s := ""
-		if len(notMyFlags) > 0 {
-			if len(notMyFlags) > 1 {
-				s = "s"
-			}
-			errmsg := fmt.Sprintf("Unknown flag%s: %v", s, notMyFlags)
-			return &Command{
-				Cmd: Usage,
-			}, errors.New(errmsg)
-		}
-		return cmd, nil
+		return cmdWithFlagsChecked(cmd, args)
 	}
 
 	// len (cmd.children > 0)
 
 	if len(args) == 0 {
-		// Subcommand required but not found in args.
-
+		// Subcommands exist but none was not found in args.
+		// If no main cmd is defined, return an error.
+		if cmd.Cmd == nil {
+			return wrongOrMissingSubcommand(cmd)
+		}
 	}
+
+	// len (cmd.children > 0) && len(args) > 0
+
 	var subname = args[0]
 	subcmd, ok = cmd.children[subname]
 	if ok {
@@ -279,16 +272,17 @@ func readCommand(args []string) (*Command, error) {
 		cmd = subcmd
 	} else {
 		// no subcommand passed in, so cmd should have a Cmd to execute
-		if cmd.Cmd == nil {
-			errmsg := "Command " + cmd.Name + " requires one of these subcommands: "
-			for _, n := range cmd.children {
-				errmsg += n.Name + ", "
-			}
-			return &Command{
-				Cmd: func(cmd *Command) error { return Usage(cmd) },
-			}, errors.New(errmsg)
-		}
+		return wrongOrMissingSubcommand(cmd)
 	}
+
+	return cmdWithFlagsChecked(cmd, args)
+}
+
+// Take a *Command and check if any flags were passed in that
+// do not belong to the Command. Return either the Command, or
+// a Usage command in case unknown flags are found.
+func cmdWithFlagsChecked(cmd *Command, args []string) (*Command, error) {
+	// No subcommands defined. Check the flags and return the command.
 	cmd.Args = args
 	notMyFlags := checkFlags(cmd)
 	s := ""
@@ -302,4 +296,15 @@ func readCommand(args []string) (*Command, error) {
 		}, errors.New(errmsg)
 	}
 	return cmd, nil
+}
+
+// Create a "subcommands required" error and a Usage command.
+func wrongOrMissingSubcommand(cmd *Command) (*Command, error) {
+	errmsg := "Command " + cmd.Name + " requires one of these subcommands: "
+	for _, n := range cmd.children {
+		errmsg += n.Name + ", "
+	}
+	return &Command{
+		Cmd: func(cmd *Command) error { return Usage(cmd) },
+	}, errors.New(errmsg)
 }
