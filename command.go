@@ -300,9 +300,9 @@ func cmdWithFlagsChecked(cmd *Command, args []string) (*Command, error) {
 
 // Create a "subcommands required" error and a Usage command.
 func wrongOrMissingSubcommand(cmd *Command) (*Command, error) {
-	errmsg := "Command " + cmd.Name + " requires one of these subcommands: "
+	errmsg := "Command " + cmd.Name + " requires one of these subcommands:\n"
 	for _, n := range cmd.children {
-		errmsg += n.Name + ", "
+		errmsg += n.Name + "\n"
 	}
 	return &Command{
 		Cmd: func(cmd *Command) error { return Usage(cmd) },
