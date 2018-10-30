@@ -32,5 +32,7 @@ _testmain.go
 todo.md
 tags
 examples/test/starttest
+examples/test/start
+examples/test/start-external
 realize.yaml
 examples/test/debug
