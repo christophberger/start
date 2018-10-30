@@ -12,8 +12,8 @@ import (
 	"os"
 	"testing"
 
-	flag "github.com/spf13/pflag"
 	. "github.com/smartystreets/goconvey/convey"
+	flag "github.com/spf13/pflag"
 )
 
 func TestAdd(t *testing.T) {
@@ -256,5 +256,48 @@ func TestCheckFlags(t *testing.T) {
 		rejectedFlags = checkFlags(Commands["cmd12"])
 		So(len(rejectedFlags), ShouldEqual, 1)
 		So(rejectedFlags["third"], ShouldEqual, true)
+	})
+}
+
+func TestExternal(t *testing.T) {
+	var yes bool
+
+	// ContinueOnError is required when running goconvey as server; otherwise, unrecognized
+	// flags that are passed to the test executable will cause an error:
+	// "unknown shorthand flag: 't' in -test.v=true"
+	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
+	// To suppress warnings resulting from standard flags -test and -json,
+	// read -t and -j into dummy flags.
+	// The flags used for actual testing must not use -t or -j shorthands.
+	var testflag, jsonflag string
+	flag.StringVarP(&testflag, "t", "t", "t", "t")
+	flag.StringVarP(&jsonflag, "j", "j", "j", "j")
+
+	flag.BoolVarP(&yes, "yes", "y", false, "A boolean flag")
+
+	Commands = make(CommandMap) // Ensure the Commands map starts empty for the test
+
+	os.Args = []string{os.Args[0], "-y"}
+
+	cmd := &Command{
+		Name:  "external",
+		Flags: []string{"yes"},
+		Short: "An external subcommand",
+		Long:  "Command external calls the cmd '<appname>-external'.",
+		Cmd:   External(),
+		Path:  "examples/test/start-external",
+	}
+
+	Add(cmd)
+
+	Convey("Ensure that the test flag exists", t, func() {
+		if err := Parse(); err != nil {
+			fmt.Println(err)
+		}
+		So(flag.Lookup("yes").Name, ShouldEqual, "yes")
+	})
+
+	Convey("Ensure that the external command is called successfully", t, func() {
+		So(cmd.Cmd(cmd), ShouldBeNil)
 	})
 }

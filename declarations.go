@@ -32,6 +32,9 @@ type privateFlagsMap map[string]bool
 // Cmd contains the function to execute. It receives the list of
 // arguments (without the flags, which are parsed already).
 // For commands with child commands, Cmd can be left empty.
+// Args gets filled with all arguments, excluding flags.
+// Path is an optional path to external executables that reside outside
+// $PATH. To be used with the External() function.
 type Command struct {
 	Name   string
 	Parent string
@@ -40,6 +43,7 @@ type Command struct {
 	Long   string
 	Cmd    func(cmd *Command) error
 	Args   []string
+	Path   string
 
 	children CommandMap
 }
