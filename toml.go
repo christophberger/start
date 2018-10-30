@@ -144,10 +144,13 @@ func GetHomeDir() string {
 // Replacing special characters by underscores makes the returned name suitable for
 // being used in the name of an environment variable.
 func appName() string {
-	fileName := filepath.Base(os.Args[0])
-	fileExt := filepath.Ext(fileName)
-	if len(fileExt) > 0 {
-		fileName = strings.Split(fileName, ".")[0]
+	if len(app) == 0 {
+		fileName := filepath.Base(os.Args[0])
+		fileExt := filepath.Ext(fileName)
+		if len(fileExt) > 0 {
+			fileName = strings.Split(fileName, ".")[0]
+		}
+		app = regexp.MustCompile("[^a-zA-Z0-9_]").ReplaceAllString(fileName, "_")
 	}
-	return regexp.MustCompile("[^a-zA-Z0-9_]").ReplaceAllString(fileName, "_")
+	return app
 }

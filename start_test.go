@@ -11,8 +11,8 @@ import (
 	"os"
 	"testing"
 
-	flag "github.com/spf13/pflag"
 	. "github.com/smartystreets/goconvey/convey"
+	flag "github.com/spf13/pflag"
 )
 
 func TestParse(t *testing.T) {
@@ -35,6 +35,7 @@ func TestParse(t *testing.T) {
 		Parse()
 		Convey("Then Parse() should find the correct values from config file, env var, or default. (Restriction: passing the command line flags is not possible with automated calls to go test)", func() {
 			So(cmdlineStringFlag, ShouldEqual, "FromCmdLine")
+			So(appName(), ShouldEqual, "start")
 			So(stringFlag, ShouldEqual, "From Environment Variable")
 			So(*intFlag, ShouldEqual, 42)    // from config file
 			So(*boolFlag, ShouldEqual, true) // from default

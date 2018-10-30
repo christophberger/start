@@ -18,6 +18,7 @@
 package start
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -38,6 +39,8 @@ var (
 	// First, this package acts like a Singleton. No accidental reuse can happen.
 	// Second, these variables do not pollute the global name spaces, as they are
 	// package variables and private.
+	// These variables might get refactored into a struct at a later time.
+	app           string // app name
 	cfgFile       *configFile
 	cfgFileName   string
 	customName    bool
@@ -45,6 +48,7 @@ var (
 	privateFlags  = privateFlagsMap{}
 	description   string
 	version       string
+	rawCmdArgs    string // the raw argument string for a command, minus the program name and the command name
 
 	// GlobalInit is a function for initializing resources for all commands.
 	// GlobalInit is called AFTER parsing and BEFORE invoking a command.
@@ -100,7 +104,11 @@ func Parse() error {
 		return nil
 	}
 	err := parse()
-	return err
+	if err != nil {
+		return errors.New("Cannot parse flags: " + err.Error())
+	}
+	alreadyParsed = true
+	return nil
 }
 
 // Reparse is the same as Parse but parses always.
@@ -119,7 +127,7 @@ func parse() error {
 		if len(val) > 0 {
 			f.Value.Set(val)
 		}
-		// then, find an apply environment variables:
+		// then, find and apply environment variables:
 		envVar := os.Getenv(strings.ToUpper(appName() + "_" + f.Name))
 		if len(envVar) > 0 {
 			f.Value.Set(envVar)
@@ -193,7 +201,12 @@ func ConfigFileToml() toml.Document {
 }
 
 func init() {
+	appName()
 	version = "1.0" // SetVersion() overrides this default.
+	rawCmdArgs = ""
+	if len(os.Args) >= 2 { // TODO why 2
+		rawCmdArgs = strings.Join(os.Args[2:], " ")
+	}
 	globalInit = func() error {
 		return nil
 	}
