@@ -35,3 +35,8 @@ Added: Some Set* functions.
 Added: Support for custom global init function.
 Added: Example in examples/test
 Fixed: empty usage
+
+### 0.4.1
+
+Fixed: Update dependencies.
+Fixed: nil dereference.
