@@ -8,3 +8,5 @@ require (
 	github.com/smartystreets/goconvey v0.0.0-20180222194500-ef6db91d284a
 	github.com/spf13/pflag v1.0.3
 )
+
+go 1.13
