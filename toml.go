@@ -107,7 +107,7 @@ func (c *configFile) findAndReadTomlFile(name string) error {
 		if len(name) == 0 {
 			name = appName() + ".toml"
 		}
-		c.doc, err = c.readTomlFile(filepath.Join(cfgPath, name))
+		c.doc, _ = c.readTomlFile(filepath.Join(cfgPath, name))
 		// At this point, it is clear that no config file exists at the
 		// given locations.
 		// The code cannot determine if the config file is missing intentionally
