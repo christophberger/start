@@ -42,10 +42,18 @@ func (c *configFile) String(name string) string {
 // Path returns the path to the config file, if one was found.
 // Otherwise it returns an empty path.
 func (c *configFile) Path() string {
+	if c == nil {
+		return ""
+	}
 	return c.path
 }
 
+// Toml returns the toml document created from the config file,
+// or an empty toml document if no config file was found.
 func (c *configFile) Toml() toml.Document {
+	if c == nil {
+		return toml.Document{}
+	}
 	return c.doc
 }
 
