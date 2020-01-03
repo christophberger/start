@@ -36,7 +36,7 @@ func (c *CommandMap) Add(cmd *Command) error {
 		return nil
 	}
 	// Add a child command.
-	if _, ok := Commands[cmd.Parent]; ok == false {
+	if _, ok := Commands[cmd.Parent]; !ok {
 		return errors.New("Add: Parent command not found for subcommand " +
 			cmd.Name + ".")
 	}
