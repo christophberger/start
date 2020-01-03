@@ -48,6 +48,7 @@ Unit tests pass but no real-world tests were done yet.
 
 Tested with:
 
+* Go 1.13.5 darwin/amd64 on macOS Catalina
 * Go 1.8.0 darwin/amd64 on macOS Sierra
 * Go 1.7.0 darwin/amd64 on macOS Sierra
 * Go 1.6.3 darwin/amd64 on macOS Sierra
@@ -57,13 +58,6 @@ Tested with:
 * Go 1.4.2 linux/arm on a Banana Pi running Bananian OS 15.01 r01
 * Go 1.4.2 win32/amd64 on Windows 7
 
-
-Installation
-------------
-
-```
-go get github.com/christophberger/start
-```
 
 Usage
 -----
@@ -76,18 +70,18 @@ import (
 
 ### Define application settings:
 
-Define your application settings using [pflag](https://github.com/ogier/pflag):
+Define your application settings using [pflag](https://github.com/spf13/pflag):
 
 ```go
-var ip *int = flag.Int("intname", "n", 1234, "help message")
-var sp *string = flag.String("strname", "s", "default", "help message")
-var bp *bool = flag.Bool("boolname", "b", "help message") // default is false if boolean flag is missing
+var ip *int = flag.IntP("intname", "n", 1234, "help message")
+var sp *string = flag.StringP("strname", "s", "default", "help message")
+var bp *bool = flag.BoolP("boolname", "b", "help message") // default is false if boolean flag is missing
 
 var flagvar int
 flag.IntVarP(&flagvar, "flagname", "f" 1234, "help message")
 ```
 
-...you know this already from the standard flag package - no learning curve here. The pflag package adds POSIX compatibility: --help and -h instead of -help. See the pflag readme for details.
+...you know this already from the standard flag package - almost no learning curve here. The pflag package adds POSIX compatibility: --help and -h instead of -help. See the pflag readme for details.
 
 Then (optionally, if not using commands as well) call
 
