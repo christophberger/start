@@ -11,6 +11,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 
 	flag "github.com/spf13/pflag"
@@ -55,7 +56,8 @@ func (cmd *Command) Add(subcmd *Command) error {
 	return nil
 }
 
-// Helper functions for Usage: errPrintln & errPrintf -> print to stderr
+// Helper functions for External() and Usage():
+// errPrintln & errPrintf -> print to stderr
 
 func errPrintln(args ...interface{}) {
 	fmt.Fprintln(os.Stderr, args...)
@@ -63,6 +65,27 @@ func errPrintln(args ...interface{}) {
 
 func errPrintf(format string, args ...interface{}) {
 	fmt.Fprintf(os.Stderr, format, args...)
+}
+
+// External defines an external command to execute via os/exec. The external command's name follows Git subcommmand naming convention: "mycmd do" invokes the external command "mycmd-do".
+func External() func(cmd *Command) error {
+	return func(cmd *Command) error {
+		cmdName := appName() + "-" + cmd.Name
+		path := filepath.Join(cmd.Path, cmdName)
+		c := exec.Command(path, rawCmdArgs)
+		out, err := c.Output()
+		fmt.Println(string(out))
+		if err != nil {
+			exitErr, ok := err.(*exec.ExitError)
+			if ok {
+				errPrintln(string(exitErr.Stderr))
+			} else {
+				errPrintln(err)
+			}
+		}
+
+		return err
+	}
 }
 
 // Usage prints a description of the application and the short help string

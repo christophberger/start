@@ -38,6 +38,7 @@ func TestReadTomlFile(t *testing.T) {
 }
 
 func TestConfigFile(t *testing.T) {
+
 	Convey("When passing an absolute path to an existing TOML file to newConfigFile", t, func() {
 		tomlfile, err := filepath.Abs("test/test.toml")
 		So(err, ShouldBeNil)
@@ -64,17 +65,25 @@ func TestConfigFile(t *testing.T) {
 
 	Convey("When passing just a file name to newConfigFile", t, func() {
 		tomlname := "test.toml"
-		var tomlpath string
+		var cfgdir, tomlpath string
+		cfgdir_created := false // If the test needs to create the config dir, remember to remove it afterwards
 
-		Convey("and the file exists in the home directory", func() {
-			home := GetHomeDir()
-			tomlpath = filepath.Join(home, tomlname)
+		Convey("and the file exists in the config directory", func() {
+			cfgdir, exists := GetUserConfigDir()
+			if !exists {
+				err := os.Mkdir(cfgdir, 0700)
+				if err != nil {
+					panic(err)
+				}
+				cfgdir_created = true
+			}
+			tomlpath = filepath.Join(cfgdir, tomlname)
 			_, err := os.Create(tomlpath)
 			if err != nil {
 				panic(err)
 			}
 
-			Convey("then newConfigFile should find the file", func() {
+			Convey("then newConfigFile should find the file ("+tomlpath+")", func() {
 				cfg, _ := newConfigFile(tomlname)
 				So(cfg, ShouldNotBeNil)
 			})
@@ -103,16 +112,27 @@ func TestConfigFile(t *testing.T) {
 
 		Reset(func() {
 			os.Remove(tomlpath)
+			if cfgdir_created {
+				os.Remove(cfgdir)
+			}
 			os.Setenv("START_CFGPATH", "")
 		})
 	})
 
 	Convey("When passing no file name to newConfigFile", t, func() {
-		var tomlpath string
+		var cfgdir, tomlpath string
+		cfgdir_created := false // If the test needs to create the config dir, remember to remove it afterwards
 
-		Convey("and the file '.start' exists in the home directory", func() {
-			home := GetHomeDir()
-			tomlpath = filepath.Join(home, ".start")
+		Convey("and the file 'test.toml' exists in the user's config directory", func() {
+			cfgdir, exists := GetUserConfigDir()
+			if !exists {
+				err := os.Mkdir(cfgdir, 0700)
+				if err != nil {
+					panic(err)
+				}
+				cfgdir_created = true
+			}
+			tomlpath = filepath.Join(cfgdir, "test.toml")
 			_, err := os.Create(tomlpath)
 			if err != nil {
 				panic(err)
@@ -147,16 +167,27 @@ func TestConfigFile(t *testing.T) {
 
 		Reset(func() {
 			os.Remove(tomlpath)
+			if cfgdir_created {
+				os.Remove(cfgdir)
+			}
 			os.Setenv("START_CFGPATH", "")
 		})
 	})
 
 	Convey("When passing no file name to newConfigFile", t, func() {
-		var tomlpath string
+		var cfgdir, tomlpath string
+		cfgdir_created := false // If the test needs to create the config dir, remember to remove it afterwards
 
-		Convey("and the file '.start' exists in the home directory", func() {
-			home := GetHomeDir()
-			tomlpath = filepath.Join(home, ".start")
+		Convey("and the file 'test.toml' exists in the config directory", func() {
+			cfgdir, exists := GetUserConfigDir()
+			if !exists {
+				err := os.Mkdir(cfgdir, 0700)
+				if err != nil {
+					panic(err)
+				}
+				cfgdir_created = true
+			}
+			tomlpath = filepath.Join(cfgdir, "test.toml")
 			_, err := os.Create(tomlpath)
 			if err != nil {
 				panic(err)
@@ -191,6 +222,9 @@ func TestConfigFile(t *testing.T) {
 
 		Reset(func() {
 			os.Remove(tomlpath)
+			if cfgdir_created {
+				os.Remove(cfgdir)
+			}
 			os.Setenv("START_CFGPATH", "")
 		})
 	})

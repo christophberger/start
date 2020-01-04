@@ -23,7 +23,7 @@ The _start_ package for Go provides two basic features for command line applicat
 	- environment variables,  
 	- config file entries,  
 	- or hardcoded defaults  
-(in this order).
+in this order. You are free to decide where to put your configuration, _start_ will find it!
 
 2. Parse commands and subcommands. This includes:
 	- Mapping commands and subcommands to functions.
@@ -92,7 +92,7 @@ start.Parse()
 (instead of pflag.Parse()) to initialize each variable from these sources, in the given order:
 
 1. From a commandline flag of the long or short name.
-2. From an environment variable named as &lt;APPLICATION&gt;&#95;&lt;LONGNAME&gt;, if the commandline flag does not exist. (&lt;APPLICATION&gt; is the executable's name (without extension, if any), and &lt;LONGNAME&gt; is the flag's long name.) [1]
+2. From an environment variable named `<APPNAME>_<LONGNAME>`, if the commandline flag does not exist. (`<APPNAME>` is the executable's name (without extension, if any), and `<LONGNAME>` is the flag's long name.) [1]
 3. From an entry in the config file, if the environment variable does not exist.
 4. From the default value if the config file entry does not exist.
 
@@ -151,11 +151,15 @@ The command receives its originating Command as input can access `cmd.Args` (a s
 
 By default, _start_ looks for a configuration file in the following places:
 
-* In the path defined through the environment variable &lt;APPLICATION&gt;&#95;CFGPATH
+* In the path defined through the environment variable `<APPNAME>_CFGPATH`
 * In the working directory
-* In the user's home, in .config/&lt;appname> directory
+* In the user's config dir: 
+  * in `$XDG_CONFIG_HOME` (if defined)
+  * in the `.config/<appname>` directory
+  * for Windows, in `%LOCALAPPDATA%`
 
-The name of the configuration file is either &lt;application&gt;.toml or .&lt;config.toml&gt; (if the file is located in $HOME/.config/&lt;appname>).
+
+The name of the configuration file is either `<appname>.toml` except if the file is located in `$HOME/.config/<appname>`; in this case the name is `config.toml`. 
 
 You can also set a custom name:
 
@@ -173,7 +177,7 @@ start.UseConfigFile("<path_to_your_config_file>")
 
 The above places do not get searched in this case.
 
-Or simply set &lt;APPLICATION&gt;&#95;CFGPATH to a path of your choice. If this path does not end in ".toml", _start_ assumes that the path is a directory and tries to find "&lt;application&gt;.toml" in this directory.
+Or simply set `<APPNAME>_CFGPATH` to a path of your choice. If this path does not end in ".toml", _start_ assumes that the path is a directory and tries to find `<appname>.toml` inside this directory.
 
 The configuration file is a [TOML](https://github.com/toml-lang/toml) file. By convention, all of the application's global variables are top-level "key=value" entries, outside any section. Besides this,  you can include your own sections as well. This is useful if you want to provide defaults for more complex data structures (arrays, tables, nested settings, etc). Access the parsed TOML document directly if you want to read values from TOML sections.
 

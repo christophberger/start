@@ -9,10 +9,11 @@ package start
 
 import (
 	"os"
+	"strings"
 	"testing"
 
-	flag "github.com/spf13/pflag"
 	. "github.com/smartystreets/goconvey/convey"
+	flag "github.com/spf13/pflag"
 )
 
 func TestParse(t *testing.T) {
@@ -25,17 +26,19 @@ func TestParse(t *testing.T) {
 	Convey("When setting up some flag variables", t, func() {
 		var stringFlag string
 		var cmdlineStringFlag string
-		flag.StringVarP(&stringFlag, "astring", "a", "From default", "A string flag")
-		flag.StringVarP(&cmdlineStringFlag, "cmdline", "c", "From command line", "A string flag")
+		flag.StringVarP(&stringFlag, "envvar", "a", "From default", "A string flag")
+		flag.StringVarP(&cmdlineStringFlag, "cmdline", "c", "From default", "A string flag")
 		intFlag := flag.IntP("anint", "i", 23, "An integer flag")
 		boolFlag := flag.BoolP("anewbool", "b", true, "A boolean flag")
 
-		SetConfigFile("test/test.toml")
-		os.Setenv("START_ASTRING", "From Environment Variable")
-		Parse()
-		Convey("Then Parse() should find the correct values from config file, env var, or default. (Restriction: passing the command line flags is not possible with automated calls to go test)", func() {
+		testcfg := "test/test.toml"
+		testenv := "START_ENVVAR"
+		SetConfigFile(testcfg)
+		os.Setenv(testenv, "From Environment Variable")
+		Reparse()
+		Convey("Then (Re)Parse() should find the correct values from config file ("+testcfg+"), env var ("+strings.ToUpper(appName()+"_"+"envvar")+"), or default.", func() {
 			So(cmdlineStringFlag, ShouldEqual, "FromCmdLine")
-			So(stringFlag, ShouldEqual, "From Environment Variable")
+			So(stringFlag, ShouldEqual, os.Getenv(testenv))
 			So(*intFlag, ShouldEqual, 42)    // from config file
 			So(*boolFlag, ShouldEqual, true) // from default
 

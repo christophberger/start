@@ -79,6 +79,15 @@ do nothing`,
 		},
 	})
 
+	start.Add(&start.Command{
+		Name:  "external",
+		Flags: []string{"yes"},
+		Short: "An external subcommand",
+		Long:  "Command external calls the cmd '<appname>-external'.",
+		Cmd:   start.External(),
+		Path:  "start-external", // needed if the exe is not in $PATH
+	})
+
 	start.Up()
 
 }

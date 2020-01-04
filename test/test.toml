@@ -1,3 +1,5 @@
+envvar = "From Config File"
+cmdline = "From Config File"
 astring = "From Config File"
 abool = true
 anint = 42

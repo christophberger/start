@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"strings"
 
 	"github.com/laurent22/toml-go"
@@ -85,22 +86,23 @@ func (c *configFile) findAndReadTomlFile(name string) error {
 	}
 
 	// environment variable is not set, or the config file was not found there,
-	// so place the config file into ~/.config/<application>/.
-	cfgPath = GetHomeDir()
+	// so search the config file in the user config dir
+	// (e.g. ~/.config/<application>/config.toml on Unixes).
+	cfgPath, _ = GetUserConfigDir()
 	if len(cfgPath) > 0 {
 		if len(name) == 0 {
 			// no name supplied; use config.toml
 			name = "config.toml"
 		}
-		path := filepath.Join(cfgPath, ".config", appName(), name)
+		path := filepath.Join(cfgPath, name)
 		c.doc, err = c.readTomlFile(path)
 		if err == nil {
 			return nil
 		}
 	}
 
-	// did not find a config file in the home dir,
-	// or did not find a home dir at all,
+	// did not find a config file in the user's config dir,
+	// or did not find a config dir at all,
 	// so try the working dir instead
 	cfgPath, err = os.Getwd()
 	if err == nil {
@@ -131,19 +133,33 @@ func (c *configFile) readTomlFile(path string) (toml.Document, error) {
 	return emptyDoc, err
 }
 
-// GetHomeDir finds the user's home directory in an OS-independent way.
+// GetUserConfigDir finds the user's config directory in an OS-independent way.
 // "OS-independent" means compatible with most Unix-like operating systems as well as with Microsoft Windows(TM).
-func GetHomeDir() string {
-	// credits for this OS-independent solution go to http://stackoverflow.com/a/7922977
-	// (os.User is not an option here. It relies on CGO and thus prevents cross compiling.)
-	home := os.Getenv("HOMEDRIVE") + os.Getenv("HOMEPATH")
-	if home == "" {
-		home = os.Getenv("USERPROFILE")
+// The boolean return value indicates if the directory exists at the location determined
+// via environment variables.
+func GetUserConfigDir() (dir string, exists bool) {
+	// Credits for this OS-independent solution go to Stackoverflow user peterSO
+	// (see http://stackoverflow.com/a/7922977). I just modified it a bit to
+	// get the respective config dir instead of the home dir.
+	// Using os.User is not an option here. It relies on CGO and thus prevents
+	// cross compiling.
+	if runtime.GOOS == "windows" {
+		dir = filepath.Join(os.Getenv("LOCALAPPDATA"), appName())
+	} else {
+		// Linuxes may have this config env var defined.
+		dir = os.Getenv("XDG_CONFIG_HOME")
+		if dir == "" {
+			// else use the common ~/.config/<appname>/ convention.
+			dir = filepath.Join(os.Getenv("HOME"), ".config", appName())
+		}
 	}
-	if home == "" {
-		home = os.Getenv("HOME")
+	// verify if the config dir exists in the file system
+	exists = true
+	_, err := os.Stat(dir)
+	if os.IsNotExist(err) {
+		exists = false
 	}
-	return home
+	return dir, exists
 }
 
 // appName returns the name of the application, with path and extension stripped off,
@@ -151,11 +167,15 @@ func GetHomeDir() string {
 // underscores.
 // Replacing special characters by underscores makes the returned name suitable for
 // being used in the name of an environment variable.
+// appName does all this only once and returns the created app name on subsequent calls.
 func appName() string {
-	fileName := filepath.Base(os.Args[0])
-	fileExt := filepath.Ext(fileName)
-	if len(fileExt) > 0 {
-		fileName = strings.Split(fileName, ".")[0]
+	if app == "" {
+		fileName := filepath.Base(os.Args[0])
+		fileExt := filepath.Ext(fileName)
+		if len(fileExt) > 0 {
+			fileName = strings.Split(fileName, ".")[0]
+		}
+		app = regexp.MustCompile("[^a-zA-Z0-9_]").ReplaceAllString(fileName, "_")
 	}
-	return regexp.MustCompile("[^a-zA-Z0-9_]").ReplaceAllString(fileName, "_")
+	return app
 }
