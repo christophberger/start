@@ -40,7 +40,7 @@ var (
 	// Second, these variables do not pollute the global name spaces, as they are
 	// package variables and private.
 	// These variables might get refactored into a struct at a later time.
-	app           string // app name
+	App           string // app name
 	cfgFile       *configFile
 	cfgFileName   string
 	customName    bool
@@ -201,7 +201,7 @@ func ConfigFileToml() toml.Document {
 }
 
 func init() {
-	app = appName()
+	App = appName()
 	version = "1.0" // SetVersion() overrides this default.
 	rawCmdArgs = ""
 	if len(os.Args) >= 2 { // TODO why 2
