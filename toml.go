@@ -63,13 +63,16 @@ func (c *configFile) findAndReadTomlFile(name string) error {
 
 	// is name an absolute path? If so, go ahead and read the file.
 	if filepath.IsAbs(name) {
-		fileInfo, _ := os.Stat(name)
-		if fileInfo.IsDir() {
-			c.doc, err = c.readTomlFile(filepath.Join(name, appName()+".toml"))
-		} else {
-			c.doc, err = c.readTomlFile(name)
+		fileInfo, err := os.Stat(name)
+		if err == nil {
+			if fileInfo.IsDir() {
+				c.doc, err = c.readTomlFile(filepath.Join(name, appName()+".toml"))
+			} else {
+				c.doc, err = c.readTomlFile(name)
+			}
+			return err
 		}
-		return err
+		// err != nil -> name might be empty. Try more options.
 	}
 
 	// is the environment variable <APPNAME>_CFGPATH set
@@ -169,13 +172,13 @@ func GetUserConfigDir() (dir string, exists bool) {
 // being used in the name of an environment variable.
 // appName does all this only once and returns the created app name on subsequent calls.
 func appName() string {
-	if app == "" {
+	if App == "" {
 		fileName := filepath.Base(os.Args[0])
 		fileExt := filepath.Ext(fileName)
 		if len(fileExt) > 0 {
 			fileName = strings.Split(fileName, ".")[0]
 		}
-		app = regexp.MustCompile("[^a-zA-Z0-9_]").ReplaceAllString(fileName, "_")
+		App = regexp.MustCompile("[^a-zA-Z0-9_]").ReplaceAllString(fileName, "_")
 	}
-	return app
+	return App
 }
