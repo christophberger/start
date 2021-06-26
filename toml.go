@@ -77,6 +77,7 @@ func (c *configFile) findAndReadTomlFile(name string) error {
 
 	// is the environment variable <APPNAME>_CFGPATH set
 	// (either to a dir path or to a file path)?
+	// CAVEAT: this does not work with "go run" as appName() would be wrong then
 	cfgPath := os.Getenv(strings.ToUpper(appName() + "_CFGPATH"))
 	if len(cfgPath) > 0 {
 		if len(name) > 0 {
