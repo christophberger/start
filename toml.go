@@ -34,8 +34,10 @@ func (c *configFile) String(name string) string {
 	// returns "" for all non-string values.
 	// GetValue().String(), on the other hand, does work for
 	// all non-string values that implement the String() method.
+	// As a consequence, the string needs to be trimmed from
+	// surrounding double quotes.
 	if exists {
-		return value.String()
+		return strings.Trim(value.String(), "\"")
 	}
 	return ""
 }
