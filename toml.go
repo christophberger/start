@@ -34,8 +34,10 @@ func (c *configFile) String(name string) string {
 	// returns "" for all non-string values.
 	// GetValue().String(), on the other hand, does work for
 	// all non-string values that implement the String() method.
+	// As a consequence, the string needs to be trimmed from
+	// surrounding double quotes.
 	if exists {
-		return value.String()
+		return strings.Trim(value.String(), "\"")
 	}
 	return ""
 }
@@ -77,6 +79,7 @@ func (c *configFile) findAndReadTomlFile(name string) error {
 
 	// is the environment variable <APPNAME>_CFGPATH set
 	// (either to a dir path or to a file path)?
+	// CAVEAT: this does not work with "go run" as appName() would be wrong then
 	cfgPath := os.Getenv(strings.ToUpper(appName() + "_CFGPATH"))
 	if len(cfgPath) > 0 {
 		if len(name) > 0 {
