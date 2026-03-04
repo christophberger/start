@@ -128,6 +128,7 @@ func applicationUsage() {
 		errPrintln("Available global flags:")
 		flagUsage(nil)
 	}
+	configFileUsage()
 	errPrintln()
 	errPrintln("Type help <command> to get help for a specific command.")
 	errPrintln()
@@ -168,8 +169,18 @@ func flagUsage(flagNames []string) {
 	}
 	for _, flg := range flagUsageList {
 		errPrintf("%-*s  %s\n", width, flg[0], flg[1])
-
 	}
+}
+
+func configFileUsage() {
+	cfg := ConfigFilePath()
+	errPrintln()
+	if len(cfg) > 0 {
+		errPrintf("Config file: %s\n", cfg)
+	} else {
+		errPrintln("No config file.")
+	}
+	errPrintln()
 }
 
 func help(cmd *Command) error {
@@ -260,7 +271,7 @@ func readCommand(args []string) (*Command, error) {
 			Cmd: func(cmd *Command) error { return Usage(nil) },
 		}, nil
 	}
-	var name = args[0]
+	name := args[0]
 	cmd, ok = Commands[name]
 	if !ok {
 		// Command not found: Print usage.
@@ -287,7 +298,7 @@ func readCommand(args []string) (*Command, error) {
 
 	// len (cmd.children > 0) && len(args) > 0
 
-	var subname = args[0]
+	subname := args[0]
 	subcmd, ok = cmd.children[subname]
 	if ok {
 		// subcommand found.
