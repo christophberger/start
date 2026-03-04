@@ -130,7 +130,7 @@ func applicationUsage() {
 	}
 	configFileUsage()
 	errPrintln()
-	errPrintln("Type help <command> to get help for a specific command.")
+	errPrintln("Type ag help <command> to get help for a specific command.")
 	errPrintln()
 }
 
