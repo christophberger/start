@@ -117,7 +117,8 @@ func Reparse() error {
 }
 
 func parse() error {
-	cfgFile, err := newConfigFile(cfgFileName)
+	var err error
+	cfgFile, err = newConfigFile(cfgFileName)
 	if err != nil {
 		return err
 	}
