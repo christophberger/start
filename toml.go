@@ -92,6 +92,7 @@ func (c *configFile) findAndReadTomlFile(name string) error {
 	}
 
 	// environment variable is not set, or the config file was not found there,
+	// so try the working dir instead
 	// so search the config file in the user config dir
 	// (e.g. ~/.config/<application>/config.toml on Unixes).
 	cfgPath, _ = GetUserConfigDir()
@@ -109,7 +110,6 @@ func (c *configFile) findAndReadTomlFile(name string) error {
 
 	// did not find a config file in the user's config dir,
 	// or did not find a config dir at all,
-	// so try the working dir instead
 	cfgPath, err = os.Getwd()
 	if err == nil {
 		if len(name) == 0 {
