@@ -13,6 +13,8 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"sort"
+	"strings"
 
 	flag "github.com/spf13/pflag"
 )
@@ -36,12 +38,14 @@ func (c *CommandMap) Add(cmd *Command) error {
 		(*c)[cmd.Name] = cmd
 		return nil
 	}
-	// Add a child command.
-	if _, ok := Commands[cmd.Parent]; !ok {
+	// Add a child command. Parent can be a path like "newsletter template".
+	parentParts := strings.Split(cmd.Parent, " ")
+	parent, err := findCommand(parentParts)
+	if err != nil {
 		return errors.New("Add: Parent command not found for subcommand " +
-			cmd.Name + ".")
+			cmd.Name + ": " + err.Error())
 	}
-	return Commands[cmd.Parent].Add(cmd)
+	return parent.Add(cmd)
 }
 
 // Add for Command adds a subcommand to a command.
@@ -119,19 +123,37 @@ func applicationUsage() {
 		width := maxCmdNameLen()
 		errPrintln("Available commands:")
 		errPrintln()
-		for _, c := range Commands {
+		names := make([]string, 0, len(Commands))
+		for name := range Commands {
+			names = append(names, name)
+		}
+		sort.Strings(names)
+		for _, name := range names {
+			c := Commands[name]
 			errPrintf("%-*s  %s\n", width, c.Name, c.Short)
 		}
 	}
-	globalFlags := checkFlags(nil)
-	if len(globalFlags) > 0 {
+	globalFlagNames := getGlobalFlagNames()
+	if len(globalFlagNames) > 0 {
+		errPrintln()
 		errPrintln("Available global flags:")
-		flagUsage(nil)
+		errPrintln()
+		flagUsage(globalFlagNames)
 	}
 	configFileUsage()
-	errPrintln()
 	errPrintln("Type ag help <command> to get help for a specific command.")
 	errPrintln()
+}
+
+func getGlobalFlagNames() []string {
+	var globalFlags []string
+	flag.VisitAll(func(f *flag.Flag) {
+		if !privateFlags[f.Name] {
+			globalFlags = append(globalFlags, f.Name)
+		}
+	})
+	sort.Strings(globalFlags)
+	return globalFlags
 }
 
 func commandUsage(cmd *Command) error {
@@ -149,7 +171,34 @@ func commandUsage(cmd *Command) error {
 		errPrintln()
 		flagUsage(cmd.Flags)
 	}
+	cmd.init()
+	if len(cmd.children) > 0 {
+		errPrintln()
+		errPrintln("Available subcommands:")
+		errPrintln()
+		width := maxSubcmdNameLen(cmd)
+		names := make([]string, 0, len(cmd.children))
+		for name := range cmd.children {
+			names = append(names, name)
+		}
+		sort.Strings(names)
+		for _, name := range names {
+			subcmd := cmd.children[name]
+			errPrintf("%-*s  %s\n", width, subcmd.Name, subcmd.Short)
+		}
+	}
 	return nil
+}
+
+func maxSubcmdNameLen(cmd *Command) int {
+	maxLength := 0
+	for _, subcmd := range cmd.children {
+		length := len(subcmd.Name)
+		if length > maxLength {
+			maxLength = length
+		}
+	}
+	return maxLength
 }
 
 func flagUsage(flagNames []string) {
@@ -188,11 +237,33 @@ func help(cmd *Command) error {
 		applicationUsage()
 		return nil
 	}
-	command := Commands[cmd.Args[0]]
-	if command == nil {
-		return errors.New("Unknown command: " + cmd.Args[0])
+	command, err := findCommand(cmd.Args)
+	if err != nil {
+		return err
 	}
 	return commandUsage(command)
+}
+
+func findCommand(args []string) (*Command, error) {
+	if len(args) == 0 {
+		return nil, errors.New("no command specified")
+	}
+	command := Commands[args[0]]
+	if command == nil {
+		return nil, errors.New("Unknown command: " + args[0])
+	}
+	for _, arg := range args[1:] {
+		command.init()
+		if len(command.children) == 0 {
+			return nil, errors.New("Command " + command.Name + " has no subcommands")
+		}
+		subcmd := command.children[arg]
+		if subcmd == nil {
+			return nil, errors.New("Unknown command: " + arg)
+		}
+		command = subcmd
+	}
+	return command, nil
 }
 
 func showVersion(cmd *Command) error {

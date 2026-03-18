@@ -41,7 +41,6 @@ func TestParse(t *testing.T) {
 			So(stringFlag, ShouldEqual, os.Getenv(testenv))
 			So(*intFlag, ShouldEqual, 42)    // from config file
 			So(*boolFlag, ShouldEqual, true) // from default
-
 		})
 		Reset(func() {
 			os.Setenv("START_ASTRING", "")
@@ -110,6 +109,6 @@ func TestUp(t *testing.T) {
 		cmd := Commands["help"]
 		So(cmd, ShouldNotBeNil)
 		So(cmd.Name, ShouldEqual, "help")
-		So(cmd.Cmd, ShouldEqual, help)
+		So(cmd.Cmd, ShouldHaveSameTypeAs, help) // ShouldEqual errors out because of "different types" (since smarty/assertions@v1.15.0)
 	})
 }

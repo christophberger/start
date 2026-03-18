@@ -259,6 +259,289 @@ func TestCheckFlags(t *testing.T) {
 	})
 }
 
+func TestHelpNavigation(t *testing.T) {
+	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
+	var testflag, jsonflag string
+	flag.StringVarP(&testflag, "t", "t", "t", "t")
+	flag.StringVarP(&jsonflag, "j", "j", "j", "j")
+
+	Commands = make(CommandMap)
+
+	Convey("When testing help navigation", t, func() {
+		SetDescription("Test app for help navigation")
+
+		Add(&Command{
+			Name:  "newsletter",
+			Short: "Newsletter commands",
+			Long:  "Create, update, and publish the weekly newsletter",
+		})
+
+		Add(&Command{
+			Parent: "newsletter",
+			Name:   "update",
+			Short:  "Update the newsletter",
+			Long:   "Update the newsletter content for this week",
+			Cmd: func(cmd *Command) error {
+				return nil
+			},
+		})
+
+		Add(&Command{
+			Parent: "newsletter",
+			Name:   "publish",
+			Short:  "Publish the newsletter",
+			Long:   "Send the newsletter to subscribers",
+			Cmd: func(cmd *Command) error {
+				return nil
+			},
+		})
+
+		Add(&Command{
+			Parent: "newsletter",
+			Name:   "archive",
+			Short:  "Archive old newsletters",
+			Long:   "Move old newsletters to archive",
+			Cmd: func(cmd *Command) error {
+				return nil
+			},
+		})
+
+		Add(&Command{
+			Parent: "newsletter",
+			Name:   "template",
+			Short:  "Manage templates",
+			Long:   "Template management for newsletters",
+		})
+
+		Add(&Command{
+			Parent: "newsletter template",
+			Name:   "create",
+			Short:  "Create a template",
+			Long:   "Create a new newsletter template",
+			Cmd: func(cmd *Command) error {
+				return nil
+			},
+		})
+
+		Add(&Command{
+			Parent: "newsletter template",
+			Name:   "delete",
+			Short:  "Delete a template",
+			Long:   "Delete an existing newsletter template",
+			Cmd: func(cmd *Command) error {
+				return nil
+			},
+		})
+
+		Convey("help <cmd> <subcmd> should navigate to the subcommand", func() {
+			helpCmd := &Command{
+				Name: "help",
+				Args: []string{"newsletter", "update"},
+			}
+
+			output := captureStderr(func() {
+				help(helpCmd)
+			})
+
+			So(output, ShouldContainSubstring, "update")
+			So(output, ShouldContainSubstring, "Update the newsletter content")
+			So(output, ShouldNotContainSubstring, "Create, update, and publish")
+		})
+
+		Convey("help <cmd> <subcmd> <subsubcmd> should navigate to sub-subcommand (arbitrary depth)", func() {
+			helpCmd := &Command{
+				Name: "help",
+				Args: []string{"newsletter", "template", "create"},
+			}
+
+			output := captureStderr(func() {
+				help(helpCmd)
+			})
+
+			So(output, ShouldContainSubstring, "create")
+			So(output, ShouldContainSubstring, "Create a new newsletter template")
+			So(output, ShouldNotContainSubstring, "Template management for newsletters")
+		})
+
+		Convey("help nonexistent should return error", func() {
+			helpCmd := &Command{
+				Name: "help",
+				Args: []string{"nonexistent"},
+			}
+
+			err := help(helpCmd)
+			So(err, ShouldNotBeNil)
+			So(err.Error(), ShouldContainSubstring, "Unknown command")
+			So(err.Error(), ShouldContainSubstring, "nonexistent")
+		})
+
+		Convey("help <cmd> nonexistent should return error", func() {
+			helpCmd := &Command{
+				Name: "help",
+				Args: []string{"newsletter", "nonexistent"},
+			}
+
+			err := help(helpCmd)
+			So(err, ShouldNotBeNil)
+			So(err.Error(), ShouldContainSubstring, "Unknown command")
+			So(err.Error(), ShouldContainSubstring, "nonexistent")
+		})
+
+		Reset(func() {
+			Commands = make(CommandMap)
+		})
+	})
+}
+
+func TestHelpOutput(t *testing.T) {
+	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
+	var testflag, jsonflag string
+	flag.StringVarP(&testflag, "t", "t", "t", "t")
+	flag.StringVarP(&jsonflag, "j", "j", "j", "j")
+
+	var globalFlag string
+	var cmdFlag bool
+	flag.StringVarP(&globalFlag, "global", "g", "default", "A global flag")
+	flag.BoolVarP(&cmdFlag, "verbose", "v", false, "Verbose output")
+
+	Commands = make(CommandMap)
+
+	Convey("When testing help output", t, func() {
+		SetDescription("Test app for help output")
+
+		Add(&Command{
+			Name:  "newsletter",
+			Short: "Newsletter commands",
+			Long:  "Create, update, and publish the weekly newsletter",
+			Flags: []string{"verbose"},
+		})
+
+		Add(&Command{
+			Parent: "newsletter",
+			Name:   "update",
+			Short:  "Update the newsletter",
+			Long:   "Update the newsletter content for this week",
+			Cmd: func(cmd *Command) error {
+				return nil
+			},
+		})
+
+		Add(&Command{
+			Parent: "newsletter",
+			Name:   "publish",
+			Short:  "Publish the newsletter",
+			Long:   "Send the newsletter to subscribers",
+			Cmd: func(cmd *Command) error {
+				return nil
+			},
+		})
+
+		Add(&Command{
+			Parent: "newsletter",
+			Name:   "template",
+			Short:  "Manage templates",
+			Long:   "Template management for newsletters",
+		})
+
+		Add(&Command{
+			Parent: "newsletter template",
+			Name:   "create",
+			Short:  "Create a template",
+			Long:   "Create a new newsletter template",
+			Cmd: func(cmd *Command) error {
+				return nil
+			},
+		})
+
+		if err := Parse(); err != nil {
+			fmt.Println(err)
+		}
+
+		Convey("help (no args) should show all commands and global flags", func() {
+			helpCmd := &Command{
+				Name: "help",
+				Args: []string{},
+			}
+
+			output := captureStderr(func() {
+				help(helpCmd)
+			})
+
+			So(output, ShouldContainSubstring, "newsletter")
+			So(output, ShouldContainSubstring, "Newsletter commands")
+			So(output, ShouldContainSubstring, "--global")
+		})
+
+		Convey("help <cmd> should show subcommands with descriptions", func() {
+			helpCmd := &Command{
+				Name: "help",
+				Args: []string{"newsletter"},
+			}
+
+			output := captureStderr(func() {
+				help(helpCmd)
+			})
+
+			So(output, ShouldContainSubstring, "newsletter")
+			So(output, ShouldContainSubstring, "Create, update, and publish")
+			So(output, ShouldContainSubstring, "update")
+			So(output, ShouldContainSubstring, "Update the newsletter")
+			So(output, ShouldContainSubstring, "publish")
+			So(output, ShouldContainSubstring, "Publish the newsletter")
+			So(output, ShouldContainSubstring, "template")
+			So(output, ShouldContainSubstring, "Manage templates")
+		})
+
+		Convey("help <cmd> should show command-specific flags", func() {
+			helpCmd := &Command{
+				Name: "help",
+				Args: []string{"newsletter"},
+			}
+
+			output := captureStderr(func() {
+				help(helpCmd)
+			})
+
+			So(output, ShouldContainSubstring, "--verbose")
+		})
+
+		Convey("help <cmd> <subcmd> should show sub-subcommands", func() {
+			helpCmd := &Command{
+				Name: "help",
+				Args: []string{"newsletter", "template"},
+			}
+
+			output := captureStderr(func() {
+				help(helpCmd)
+			})
+
+			So(output, ShouldContainSubstring, "template")
+			So(output, ShouldContainSubstring, "Template management")
+			So(output, ShouldContainSubstring, "create")
+			So(output, ShouldContainSubstring, "Create a template")
+		})
+
+		Reset(func() {
+			Commands = make(CommandMap)
+		})
+	})
+}
+
+func captureStderr(f func()) string {
+	old := os.Stderr
+	r, w, _ := os.Pipe()
+	os.Stderr = w
+
+	f()
+
+	w.Close()
+	os.Stderr = old
+
+	var buf [1024]byte
+	n, _ := r.Read(buf[:])
+	return string(buf[:n])
+}
+
 func TestExternal(t *testing.T) {
 	var yes bool
 
@@ -300,4 +583,187 @@ func TestExternal(t *testing.T) {
 	Convey("Ensure that the external command is called successfully", t, func() {
 		So(cmd.Cmd(cmd), ShouldBeNil)
 	})
+}
+
+func Example_helpNoArgs() {
+	alreadyParsed = false
+	cfgFile = nil
+	cfgFileName = ""
+	customName = false
+	privateFlags = make(privateFlagsMap)
+
+	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
+	var globalFlag string
+	flag.StringVarP(&globalFlag, "verbose", "v", "false", "Enable verbose output")
+
+	Commands = make(CommandMap)
+	SetDescription("A CLI tool for managing newsletters")
+
+	Add(&Command{
+		Name:  "newsletter",
+		Short: "Manage newsletters",
+		Long:  "Create, update, and publish newsletters",
+	})
+
+	Add(&Command{
+		Name:  "subscriber",
+		Short: "Manage subscribers",
+		Long:  "Add, remove, and list subscribers",
+	})
+
+	Parse()
+
+	oldStderr := os.Stderr
+	os.Stderr = os.Stdout
+	help(&Command{Name: "help", Args: []string{}})
+	os.Stderr = oldStderr
+
+	// Output:
+	// start.test
+	//
+	// A CLI tool for managing newsletters
+	//
+	// Available commands:
+	//
+	// newsletter  Manage newsletters
+	// subscriber  Manage subscribers
+	//
+	// Available global flags:
+	//
+	// -v, --verbose=false  Enable verbose output
+	//
+	// No config file.
+	//
+	// Type ag help <command> to get help for a specific command.
+}
+
+func Example_helpCommand() {
+	alreadyParsed = false
+	cfgFile = nil
+	cfgFileName = ""
+	customName = false
+	privateFlags = make(privateFlagsMap)
+
+	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
+	var verbose bool
+	var format string
+	flag.BoolVarP(&verbose, "verbose", "v", false, "Enable verbose output")
+	flag.StringVarP(&format, "format", "f", "text", "Output format (text, json)")
+
+	Commands = make(CommandMap)
+
+	Add(&Command{
+		Name:  "newsletter",
+		Short: "Manage newsletters",
+		Long:  "Create, update, and publish newsletters",
+		Flags: []string{"format"},
+	})
+
+	Add(&Command{
+		Parent: "newsletter",
+		Name:   "create",
+		Short:  "Create a new newsletter",
+		Long:   "Create a new newsletter from a template",
+	})
+
+	Add(&Command{
+		Parent: "newsletter",
+		Name:   "update",
+		Short:  "Update a newsletter",
+		Long:   "Update an existing newsletter",
+	})
+
+	Add(&Command{
+		Parent: "newsletter",
+		Name:   "publish",
+		Short:  "Publish a newsletter",
+		Long:   "Publish the newsletter to subscribers",
+	})
+
+	Parse()
+
+	oldStderr := os.Stderr
+	os.Stderr = os.Stdout
+	help(&Command{Name: "help", Args: []string{"newsletter"}})
+	os.Stderr = oldStderr
+
+	// Output:
+	//
+	// newsletter
+	//
+	// Create, update, and publish newsletters
+	//
+	// Command-specific flags:
+	//
+	// -f, --format=text  Output format (text, json)
+	//
+	// Available subcommands:
+	//
+	// create   Create a new newsletter
+	// publish  Publish a newsletter
+	// update   Update a newsletter
+}
+
+func Example_helpSubcommand() {
+	alreadyParsed = false
+	cfgFile = nil
+	cfgFileName = ""
+	customName = false
+	privateFlags = make(privateFlagsMap)
+
+	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
+	var verbose bool
+	flag.BoolVarP(&verbose, "verbose", "v", false, "Enable verbose output")
+
+	Commands = make(CommandMap)
+
+	Add(&Command{
+		Name:  "newsletter",
+		Short: "Manage newsletters",
+		Long:  "Create, update, and publish newsletters",
+	})
+
+	Add(&Command{
+		Parent: "newsletter",
+		Name:   "template",
+		Short:  "Manage templates",
+		Long:   "Create, edit, and delete newsletter templates",
+		Flags:  []string{"verbose"},
+	})
+
+	Add(&Command{
+		Parent: "newsletter template",
+		Name:   "create",
+		Short:  "Create a template",
+		Long:   "Create a new newsletter template",
+	})
+
+	Add(&Command{
+		Parent: "newsletter template",
+		Name:   "delete",
+		Short:  "Delete a template",
+		Long:   "Delete an existing newsletter template",
+	})
+
+	Parse()
+
+	oldStderr := os.Stderr
+	os.Stderr = os.Stdout
+	help(&Command{Name: "help", Args: []string{"newsletter", "template"}})
+	os.Stderr = oldStderr
+
+	// Output:
+	//
+	// newsletter template
+	//
+	// Create, edit, and delete newsletter templates
+	//
+	// Command-specific flags:
+	//
+	// -v, --verbose=false  Enable verbose output
+	//
+	// Available subcommands:
+	//
+	// create  Create a template
+	// delete  Delete a template
 }
