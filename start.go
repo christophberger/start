@@ -23,6 +23,7 @@ import (
 	"os"
 	"strings"
 
+	"cuelang.org/go/cue"
 	"github.com/laurent22/toml-go"
 	flag "github.com/spf13/pflag"
 )
@@ -195,10 +196,17 @@ func ConfigFilePath() string {
 }
 
 // ConfigFileToml returns the toml document created from the config file.
-// Useful for fetching additional content from the config file than the one used
-// by the flags.
+// Useful for fetching additional content from the config file.
+// Returns an empty document when a CUE config file is in use.
 func ConfigFileToml() toml.Document {
 	return cfgFile.Toml()
+}
+
+// ConfigFileCue returns the CUE value loaded from the config file.
+// Useful for fetching additional content from a CUE config file.
+// Returns an empty cue.Value when a TOML config file is in use.
+func ConfigFileCue() cue.Value {
+	return cfgFile.Cue()
 }
 
 func init() {
