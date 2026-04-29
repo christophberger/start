@@ -8,6 +8,7 @@
 package start
 
 import (
+	"cuelang.org/go/cue"
 	"github.com/laurent22/toml-go"
 )
 
@@ -49,10 +50,12 @@ type Command struct {
 
 //// Configuration File Declarations
 
-// ConfigFile represents a configuration file.
-// If the application has no configuration file, then doc is an empty
-// toml.Document and path is empty.
+// configFile represents a configuration file.
+// Either doc (TOML) or cueVal (CUE) is populated, determined by isCue.
+// If no config file exists, both are zero values and path is "".
 type configFile struct {
-	doc  toml.Document
-	path string
+	doc    toml.Document // populated for TOML config files
+	cueVal cue.Value     // populated for CUE config files
+	isCue  bool          // true when a CUE file was loaded
+	path   string
 }

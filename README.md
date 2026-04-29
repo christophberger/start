@@ -149,45 +149,86 @@ The command receives its originating Command as input can access `cmd.Args` (a s
 
 ### Notes about the config file
 
+_start_ supports two config file formats: **[CUE](https://cuelang.org)** (searched first) and **[TOML](https://github.com/toml-lang/toml)** (fallback). CUE is the preferred format; if no CUE file is found, _start_ looks for a TOML file instead.
+
 By default, _start_ looks for a configuration file in the following places:
 
 * In the path defined through the environment variable `<APPNAME>_CFGPATH`
-* In the working directory
 * In the user's config dir: 
   * in `$XDG_CONFIG_HOME` (if defined)
   * in the `.config/<appname>` directory
   * for Windows, in `%LOCALAPPDATA%`
+* In the working directory
 
+At each location, a CUE file is tried first, then TOML.
 
-The name of the configuration file is either `<appname>.toml` except if the file is located in `$HOME/.config/<appname>`; in this case the name is `config.toml`. 
+The default config file names are:
+
+| Location | CUE | TOML |
+|---|---|---|
+| Working directory or env var path | `<appname>.cue` | `<appname>.toml` |
+| User config dir (`~/.config/<appname>/`) | `config.cue` | `config.toml` |
 
 You can also set a custom name:
 
 ```go
-start.UseConfigFile("<your_config_file>")
+start.SetConfigFile("<your_config_file>")
 ```
 
-_start_ then searches for this file name in the places listed above.
+_start_ then searches for this file name in the places listed above. Providing a name with `.cue` or `.toml` extension sets the format explicitly; a bare name causes _start_ to try both extensions (CUE first).
 
 You may as well specify a full path to your configuration file:
 
 ```go
-start.UseConfigFile("<path_to_your_config_file>")
+start.SetConfigFile("<path_to_your_config_file>")
 ```
 
-The above places do not get searched in this case.
+The above places do not get searched in this case. The format is determined by the file extension (`.cue` or `.toml`).
 
-Or simply set `<APPNAME>_CFGPATH` to a path of your choice. If this path does not end in ".toml", _start_ assumes that the path is a directory and tries to find `<appname>.toml` inside this directory.
+Or simply set `<APPNAME>_CFGPATH` to a path of your choice.
 
-The configuration file is a [TOML](https://github.com/toml-lang/toml) file. By convention, all of the application's global variables are top-level "key=value" entries, outside any section. Besides this,  you can include your own sections as well. This is useful if you want to provide defaults for more complex data structures (arrays, tables, nested settings, etc). Access the parsed TOML document directly if you want to read values from TOML sections.
+#### CUE config file format
 
-_start_ uses [toml-go](https://github.com/laurent22/toml-go) for parsing the config file. The parsed contents are available via a property named "CfgFile", and you can use toml-go methods for accessing the contents (after having invoked `start.Parse()`or `start.Up()`):
+A CUE config file uses field definitions with `:` syntax. All flag names must be top-level fields:
+
+```cue
+targetlang: "bavarian"
+sourcelang: "english_us"
+voice:      "Janet"
+port:       8080
+debug:      false
+```
+
+After calling `start.Parse()` or `start.Up()`, access the full CUE value for richer data structures via `start.ConfigFileCue()`:
 
 ```go
-langs := start.CfgFile.GetArray("colors")
-langs := start.CfgFile.GetDate("publish")
+cfg := start.ConfigFileCue()
+colors, _ := cfg.LookupPath(cue.ParsePath("colors")).List()
 ```
-(See the toml-go project for all avaialble methods.)
+
+(See the [CUE Go API](https://pkg.go.dev/cuelang.org/go/cue) for all available methods.)
+
+#### TOML config file format
+
+A TOML config file uses `key = value` syntax. By convention, all of the application's global variables are top-level "key=value" entries, outside any section. Besides this, you can include your own sections as well:
+
+```toml
+targetlang = "bavarian"
+sourcelang = "english_us"
+voice      = "Janet"
+port       = 8080
+debug      = false
+```
+
+After calling `start.Parse()` or `start.Up()`, access the full TOML document for sections and complex types via `start.ConfigFileToml()`:
+
+```go
+doc := start.ConfigFileToml()
+colors := doc.GetArray("colors")
+publish := doc.GetDate("publish")
+```
+
+(See the [toml-go](https://github.com/laurent22/toml-go) project for all available methods.)
 
 
 Example
@@ -195,12 +236,20 @@ Example
 
 For this example, let's assume you want to build a fictitious application for translating text. We will go through the steps of setting up a config file, environment variables, command line flags, and commands.
 
-First, set up a config file consisting of key/value pairs:
+First, set up a config file consisting of key/value pairs. Using CUE (preferred):
 
+```cue
+targetlang: "bavarian"
+sourcelang: "english_us"
+voice:      "Janet"
 ```
-targetlang = bavarian
-sourcelang = english_us
-voice = Janet
+
+Or using TOML:
+
+```toml
+targetlang = "bavarian"
+sourcelang = "english_us"
+voice      = "Janet"
 ```
 
 Set an environment variable. Let's assume your executable is named "gotranslate":
