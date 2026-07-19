@@ -1,0 +1,6 @@
+envvar:  "From Config File"
+cmdline: "From Config File"
+astring: "From Config File"
+abool:   true
+anint:   42
+adate:   "2014-08-17T09:25:00Z"

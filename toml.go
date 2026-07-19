@@ -14,28 +14,52 @@ import (
 	"runtime"
 	"strings"
 
+	"cuelang.org/go/cue"
 	"github.com/laurent22/toml-go"
 )
 
-// NewconfigFile creates a new configFile struct filled with the contents
-// of the file identified by filename.
+// newConfigFile creates a new configFile struct filled with the contents
+// of the file identified by filename. CUE is tried first; TOML is the fallback.
 // Parameter filename can be an empty string, a file name, or a fully qualified path.
 func newConfigFile(filename string) (*configFile, error) { // TODO: Do not return an error. See start.go > parse()
 	cfg := &configFile{}
+	// Try CUE first.
+	if err := cfg.findAndReadCueFile(filename); err == nil && cfg.path != "" {
+		return cfg, nil
+	}
+	// Fall back to TOML.
 	err := cfg.findAndReadTomlFile(filename)
 	return cfg, err
 }
 
 // String returns the value of key "name" as a string.
-// Keys must be defined outside any section in the TOML file.
+// For TOML: keys must be defined outside any section.
+// For CUE: any top-level field name is supported.
 func (c *configFile) String(name string) string {
-	value, exists := c.doc.GetValue(name)
+	if c.isCue {
+		v := c.cueVal.LookupPath(cue.ParsePath(name))
+		if !v.Exists() {
+			return ""
+		}
+		// String kind: return directly (no surrounding quotes in CUE strings).
+		if s, err := v.String(); err == nil {
+			return s
+		}
+		// Non-string kinds (bool, int, float, …): marshal to JSON for pflag.
+		b, err := v.MarshalJSON()
+		if err != nil {
+			return ""
+		}
+		return strings.Trim(string(b), "\"")
+	}
+	// TOML path.
 	// Note: c.doc.GetString() does not work here as this
 	// returns "" for all non-string values.
 	// GetValue().String(), on the other hand, does work for
 	// all non-string values that implement the String() method.
 	// As a consequence, the string needs to be trimmed from
 	// surrounding double quotes.
+	value, exists := c.doc.GetValue(name)
 	if exists {
 		return strings.Trim(value.String(), "\"")
 	}
@@ -52,9 +76,9 @@ func (c *configFile) Path() string {
 }
 
 // Toml returns the toml document created from the config file,
-// or an empty toml document if no config file was found.
+// or an empty toml document if no TOML config file was found.
 func (c *configFile) Toml() toml.Document {
-	if c == nil {
+	if c == nil || c.isCue {
 		return toml.Document{}
 	}
 	return c.doc
