@@ -199,7 +199,7 @@ port:       8080
 debug:      false
 ```
 
-After calling `start.Parse()` or `start.Up()`, access the full CUE value for richer data structures via `start.ConfigFileCue()`:
+After calling `start.Parse()` or `start.Up()`, access the full CUEfile content via `start.ConfigFileCue()`:
 
 ```go
 cfg := start.ConfigFileCue()

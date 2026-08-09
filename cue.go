@@ -16,6 +16,70 @@ import (
 	"cuelang.org/go/cue/cuecontext"
 )
 
+// newConfigFile creates a new configFile struct filled with the contents
+// of the file identified by filename. CUE is tried first; TOML is the fallback.
+// Parameter filename can be an empty string, a file name, or a fully qualified path.
+// If a .cue file is found but contains invalid CUE, the parse error is returned
+// rather than silently falling back to TOML.
+func newConfigFile(filename string) (*configFile, error) { // TODO: Do not return an error. See start.go > parse()
+	cfg := &configFile{}
+	// Try CUE first.
+	err := cfg.findAndReadCueFile(filename)
+	if err != nil {
+		return cfg, err
+	}
+	if cfg.path != "" {
+		return cfg, nil
+	}
+	// No CUE file found; fall back to TOML.
+	err = cfg.findAndReadTomlFile(filename)
+	return cfg, err
+}
+
+// String returns the value of key "name" as a string.
+// For CUE: any top-level field name is supported, including names with
+// characters like dashes that require quoting in CUE (e.g. "host-name").
+// For TOML: keys must be defined outside any section.
+func (c *configFile) String(name string) string {
+	if c.isCue {
+		v := c.cueVal.LookupPath(cue.MakePath(cue.Str(name)))
+		if !v.Exists() {
+			return ""
+		}
+		// String kind: return directly (no surrounding quotes in CUE strings).
+		if s, err := v.String(); err == nil {
+			return s
+		}
+		// Non-string kinds (bool, int, float, …): marshal to JSON for pflag.
+		b, err := v.MarshalJSON()
+		if err != nil {
+			return ""
+		}
+		return strings.Trim(string(b), "\"")
+	}
+	// TOML path.
+	// Note: c.doc.GetString() does not work here as this
+	// returns "" for all non-string values.
+	// GetValue().String(), on the other hand, does work for
+	// all non-string values that implement the String() method.
+	// As a consequence, the string needs to be trimmed from
+	// surrounding double quotes.
+	value, exists := c.doc.GetValue(name)
+	if exists {
+		return strings.Trim(value.String(), "\"")
+	}
+	return ""
+}
+
+// Path returns the path to the config file, if one was found.
+// Otherwise it returns an empty path.
+func (c *configFile) Path() string {
+	if c == nil {
+		return ""
+	}
+	return c.path
+}
+
 // Cue returns the CUE value loaded from the config file.
 // Returns an empty cue.Value if the config file is not a CUE file.
 func (c *configFile) Cue() cue.Value {
@@ -27,7 +91,9 @@ func (c *configFile) Cue() cue.Value {
 
 // findAndReadCueFile searches for a CUE config file and reads it.
 // The search order mirrors findAndReadTomlFile but targets .cue files.
-// Returns nil whether or not a file is found; check c.path to confirm.
+// Returns nil if no .cue file is found; check c.path to confirm.
+// If a .cue file is found but fails to compile, the error is returned so the
+// caller can report it instead of silently falling back to TOML.
 func (c *configFile) findAndReadCueFile(name string) error {
 	// Absolute path: detect format from extension, or search directory.
 	if filepath.IsAbs(name) {
@@ -57,6 +123,8 @@ func (c *configFile) findAndReadCueFile(name string) error {
 		}
 		if err := c.readCueFile(path); err == nil {
 			return nil
+		} else if !os.IsNotExist(err) {
+			return err
 		}
 	}
 
@@ -69,10 +137,12 @@ func (c *configFile) findAndReadCueFile(name string) error {
 		}
 		if err := c.readCueFile(filepath.Join(cfgDir, n)); err == nil {
 			return nil
+		} else if !os.IsNotExist(err) {
+			return err
 		}
 	}
 
-	// Search in the working directory (last resort, no error on miss).
+	// Search in the working directory (last resort).
 	wd, err := os.Getwd()
 	if err != nil {
 		return err
@@ -81,7 +151,9 @@ func (c *configFile) findAndReadCueFile(name string) error {
 	if len(n) == 0 {
 		n = appName() + ".cue"
 	}
-	_ = c.readCueFile(filepath.Join(wd, n))
+	if err := c.readCueFile(filepath.Join(wd, n)); err != nil && !os.IsNotExist(err) {
+		return err
+	}
 	return nil
 }
 

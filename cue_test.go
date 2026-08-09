@@ -181,4 +181,65 @@ func TestCueConfigFile(t *testing.T) {
 			os.Remove(tomlpath)
 		})
 	})
+
+	Convey("When a .cue file exists but contains invalid CUE syntax", t, func() {
+		wd, _ := os.Getwd()
+		cuepath := filepath.Join(wd, "start.cue")
+		tomlpath := filepath.Join(wd, "start.toml")
+
+		Convey("and a valid TOML file also exists", func() {
+			// TOML-style = is invalid CUE syntax
+			os.WriteFile(cuepath, []byte("astring = \"from broken cue\"\n"), 0644)
+			os.WriteFile(tomlpath, []byte("astring = \"from toml\"\n"), 0644)
+
+			Convey("then newConfigFile should return the CUE parse error, not fall back to TOML", func() {
+				cfg, err := newConfigFile("")
+				So(cfg, ShouldNotBeNil)
+				So(err, ShouldNotBeNil)
+				So(cfg.isCue, ShouldBeFalse)
+				So(cfg.path, ShouldEqual, "")
+			})
+		})
+
+		Convey("and no TOML file exists", func() {
+			os.WriteFile(cuepath, []byte("astring = \"from broken cue\"\n"), 0644)
+
+			Convey("then newConfigFile should return the CUE parse error", func() {
+				cfg, err := newConfigFile("")
+				So(cfg, ShouldNotBeNil)
+				So(err, ShouldNotBeNil)
+				So(cfg.isCue, ShouldBeFalse)
+				So(cfg.path, ShouldEqual, "")
+			})
+		})
+
+		Reset(func() {
+			os.Remove(cuepath)
+			os.Remove(tomlpath)
+		})
+	})
+
+	Convey("When a valid CUE file has field names with dashes", t, func() {
+		wd, _ := os.Getwd()
+		cuepath := filepath.Join(wd, "start.cue")
+		// Dashes require quoting in CUE field labels
+		os.WriteFile(cuepath, []byte(`"host-name": "example.com"
+"port-num": 8080
+astring: "hi"
+`), 0644)
+
+		Convey("then String() should correctly look up dashed field names", func() {
+			cfg, err := newConfigFile("")
+			So(err, ShouldBeNil)
+			So(cfg, ShouldNotBeNil)
+			So(cfg.isCue, ShouldBeTrue)
+			So(cfg.String("host-name"), ShouldEqual, "example.com")
+			So(cfg.String("port-num"), ShouldEqual, "8080")
+			So(cfg.String("astring"), ShouldEqual, "hi")
+		})
+
+		Reset(func() {
+			os.Remove(cuepath)
+		})
+	})
 }
