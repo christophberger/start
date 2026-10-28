@@ -155,8 +155,8 @@ By default, _start_ looks for a configuration file in the following places:
 
 * In the path defined through the environment variable `<APPNAME>_CFGPATH`
 * In the user's config dir: 
-  * in `$XDG_CONFIG_HOME` (if defined)
-  * in the `.config/<appname>` directory
+  * in `$XDG_CONFIG_HOME/<appname>` (if `$XDG_CONFIG_HOME` is defined)
+  * else in the `~/.config/<appname>` directory
   * for Windows, in `%LOCALAPPDATA%`
 * In the working directory
 
