@@ -10,6 +10,7 @@ package start
 import (
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -61,14 +62,10 @@ func (cmd *Command) Add(subcmd *Command) error {
 }
 
 // Helper functions for External() and Usage():
-// errPrintln & errPrintf -> print to stderr
+// errPrintln -> print to stderr
 
 func errPrintln(args ...interface{}) {
 	fmt.Fprintln(os.Stderr, args...)
-}
-
-func errPrintf(format string, args ...interface{}) {
-	fmt.Fprintf(os.Stderr, format, args...)
 }
 
 // External defines an external command to execute via os/exec. The external command's name follows Git subcommmand naming convention: "mycmd do" invokes the external command "mycmd-do".
@@ -95,54 +92,62 @@ func External() func(cmd *Command) error {
 // Usage prints a description of the application and the short help string
 // of every command, when called with a nil argument.
 // When called with a command as parameter, Usage prints this command's
-// long help string as well as the short help strings of the available
-// subcommands.
+// long help string, its flags, the global flags, and the short help strings
+// of the available subcommands.
+// Usage writes to stderr, as it is the answer to a wrong command line. The
+// help command, the --help flag, and calling the application without any
+// command write the same text to stdout.
 // Parse() or Up() must be called before invoking Usage().
 func Usage(cmd *Command) error {
 	if cmd == nil {
-		applicationUsage()
-	} else {
-		err := commandUsage(cmd)
-		if err != nil {
-			errPrintln(err)
-		}
+		applicationUsage(os.Stderr)
+		return nil
 	}
-	errPrintln()
-	return nil
+	return commandUsage(os.Stderr, cmd)
 }
 
-func applicationUsage() {
-	errPrintln()
-	errPrintln(filepath.Base(os.Args[0]))
-	errPrintln()
+func applicationUsage(w io.Writer) {
+	app := filepath.Base(os.Args[0])
+	fmt.Fprintf(w, "%s\n\n", app)
 	if len(description) > 0 {
-		errPrintln(description)
-		errPrintln()
+		fmt.Fprintf(w, "%s\n\n", description)
 	}
 	if len(Commands) > 0 {
-		width := maxCmdNameLen()
-		errPrintln("Available commands:")
-		errPrintln()
-		names := make([]string, 0, len(Commands))
-		for name := range Commands {
-			names = append(names, name)
+		fmt.Fprint(w, "Available commands:\n\n")
+		var all []*Command
+		var collect func(CommandMap)
+		collect = func(cm CommandMap) {
+			for _, c := range cm {
+				all = append(all, c)
+				collect(c.children)
+			}
 		}
-		sort.Strings(names)
-		for _, name := range names {
-			c := Commands[name]
-			errPrintf("%-*s  %s\n", width, c.Name, c.Short)
-		}
+		collect(Commands)
+		commandList(w, all, fullName)
 	}
-	globalFlagNames := getGlobalFlagNames()
-	if len(globalFlagNames) > 0 {
-		errPrintln()
-		errPrintln("Available global flags:")
-		errPrintln()
-		flagUsage(globalFlagNames)
+	if globals := getGlobalFlagNames(); len(globals) > 0 {
+		fmt.Fprint(w, "\nAvailable global flags:\n\n")
+		flagUsage(w, globals)
 	}
-	configFileUsage()
-	errPrintln("Type ag help <command> to get help for a specific command.")
-	errPrintln()
+	configFileUsage(w)
+	fmt.Fprintf(w, "Type %[1]s help <command> or %[1]s <command> --help to get help for a specific command.\n", app)
+}
+
+// fullName returns the command's name preceded by the names of its parents.
+func fullName(c *Command) string {
+	return strings.TrimSpace(c.Parent + " " + c.Name)
+}
+
+// commandList prints the commands, sorted by name, with their short help.
+func commandList(w io.Writer, cmds []*Command, name func(*Command) string) {
+	sort.Slice(cmds, func(i, j int) bool { return name(cmds[i]) < name(cmds[j]) })
+	width := 0
+	for _, c := range cmds {
+		width = max(width, len(name(c)))
+	}
+	for _, c := range cmds {
+		fmt.Fprintf(w, "  %-*s  %s\n", width, name(c), c.Short)
+	}
 }
 
 func getGlobalFlagNames() []string {
@@ -156,92 +161,65 @@ func getGlobalFlagNames() []string {
 	return globalFlags
 }
 
-func commandUsage(cmd *Command) error {
-	errPrintln()
-	if cmd.Parent != "" {
-		errPrintf("%v ", cmd.Parent)
+func commandUsage(w io.Writer, cmd *Command) error {
+	fmt.Fprintf(w, "%s\n\n%s\n", fullName(cmd), cmd.Long)
+	if err := Parse(); err != nil {
+		return err
 	}
-	errPrintf("%v\n\n%v\n", cmd.Name, cmd.Long)
 	if len(cmd.Flags) > 0 {
-		if err := Parse(); err != nil {
-			return err
-		}
-		errPrintln()
-		errPrintln("Command-specific flags:")
-		errPrintln()
-		flagUsage(cmd.Flags)
+		fmt.Fprint(w, "\nCommand-specific flags:\n\n")
+		flagUsage(w, cmd.Flags)
+	}
+	if globals := getGlobalFlagNames(); len(globals) > 0 {
+		fmt.Fprint(w, "\nAvailable global flags:\n\n")
+		flagUsage(w, globals)
 	}
 	cmd.init()
 	if len(cmd.children) > 0 {
-		errPrintln()
-		errPrintln("Available subcommands:")
-		errPrintln()
-		width := maxSubcmdNameLen(cmd)
-		names := make([]string, 0, len(cmd.children))
-		for name := range cmd.children {
-			names = append(names, name)
+		fmt.Fprint(w, "\nAvailable subcommands:\n\n")
+		subcmds := make([]*Command, 0, len(cmd.children))
+		for _, c := range cmd.children {
+			subcmds = append(subcmds, c)
 		}
-		sort.Strings(names)
-		for _, name := range names {
-			subcmd := cmd.children[name]
-			errPrintf("%-*s  %s\n", width, subcmd.Name, subcmd.Short)
-		}
+		commandList(w, subcmds, func(c *Command) string { return c.Name })
 	}
 	return nil
 }
 
-func maxSubcmdNameLen(cmd *Command) int {
-	maxLength := 0
-	for _, subcmd := range cmd.children {
-		length := len(subcmd.Name)
-		if length > maxLength {
-			maxLength = length
-		}
-	}
-	return maxLength
-}
-
-func flagUsage(flagNames []string) {
-	flagUsageList := [][]string{}
-	var flagNamesAndDefault string
-	var width int
+// flagUsage prints the named flags in pflag's format.
+func flagUsage(w io.Writer, flagNames []string) {
+	fs := flag.NewFlagSet("", flag.ContinueOnError)
 	for _, flagName := range flagNames {
 		flg := flag.Lookup(flagName)
 		if flg == nil {
 			panic("Flag '" + flagName + "' does not exist.")
 		}
-		flagNamesAndDefault = fmt.Sprintf("-%s, --%s=%s", flg.Shorthand, flagName, flg.Value) // TODO -> pflag specific "Shorthand"
-		if width < len(flagNamesAndDefault) {
-			width = len(flagNamesAndDefault)
-		}
-		flagUsageList = append(flagUsageList, []string{flagNamesAndDefault, flg.Usage})
+		fs.AddFlag(flg)
 	}
-	for _, flg := range flagUsageList {
-		errPrintf("%-*s  %s\n", width, flg[0], flg[1])
-	}
+	fmt.Fprint(w, fs.FlagUsages())
 }
 
-func configFileUsage() {
+func configFileUsage(w io.Writer) {
 	cfg := ConfigFilePath()
-	errPrintln()
+	fmt.Fprintln(w)
 	if len(cfg) > 0 {
-		errPrintf("Config file: %s\n", cfg)
+		fmt.Fprintf(w, "Config file: %s\n", cfg)
 	} else {
-		errPrintln("No config file.")
+		fmt.Fprintln(w, "No config file.")
 	}
-	errPrintln()
+	fmt.Fprintln(w)
 }
 
 func help(cmd *Command) error {
 	if len(cmd.Args) == 0 {
-		applicationUsage()
+		applicationUsage(os.Stdout)
 		return nil
 	}
 	command, err := findCommand(cmd.Args)
 	if err != nil {
 		return err
 	}
-	return commandUsage(command)
+	return commandUsage(os.Stdout, command)
 }
 
 func findCommand(args []string) (*Command, error) {
@@ -267,20 +245,8 @@ func findCommand(args []string) (*Command, error) {
 }
 
 func showVersion(cmd *Command) error {
-	errPrintln(filepath.Base(os.Args[0]) + " version " + version)
+	fmt.Println(filepath.Base(os.Args[0]) + " version " + version)
 	return nil
-}
-
-// maxCmdNameLen returns the length of the longest command name.
-func maxCmdNameLen() int {
-	maxLength := 0
-	for _, cmd := range Commands {
-		length := len(cmd.Name)
-		if length > maxLength {
-			maxLength = length
-		}
-	}
-	return maxLength
 }
 
 // init initializes the children map.
@@ -330,86 +296,74 @@ func checkFlags(c *Command) map[string]bool {
 // list of arguments.
 // Parameter args is the list of arguments *after* being parsed by flag.Parse().
 // The first item of args must be a command name. If that command has
-// subcommands defined, the second item must contain the name of a subcommand.
-// If any error occurs, readCommand returns an error and a Command calling the
-// pre-defined Usage function
+// subcommands defined, the next item names a subcommand, and so on. A
+// command with subcommands and a Cmd of its own runs when no subcommand
+// follows; one without a Cmd requires a subcommand.
+// Without any args, readCommand returns the help command.
+// If any error occurs, readCommand returns an error and a Command that
+// prints the matching usage to stderr.
 func readCommand(args []string) (*Command, error) {
-	var cmd, subcmd *Command
-	var ok bool
 	if len(args) == 0 {
-		// No command passed in: Print usage.
-		return &Command{
-			Cmd: func(cmd *Command) error { return Usage(nil) },
-		}, nil
+		return &Command{Name: "help", Cmd: help}, nil
 	}
-	name := args[0]
-	cmd, ok = Commands[name]
+	cmd, ok := Commands[args[0]]
 	if !ok {
-		// Command not found: Print usage.
 		return &Command{
-			Cmd: func(cmd *Command) error { return Usage(nil) },
-		}, nil
+			Cmd: func(*Command) error { return Usage(nil) },
+		}, errors.New("Unknown command: " + args[0])
 	}
-	// command found. Remove it from the argument list.
 	args = args[1:]
-
-	if len(cmd.children) == 0 {
-		return cmdWithFlagsChecked(cmd, args)
-	}
-
-	// len (cmd.children > 0)
-
-	if len(args) == 0 {
-		// Subcommands exist but none was not found in args.
-		// If no main cmd is defined, return an error.
-		if cmd.Cmd == nil {
-			return wrongOrMissingSubcommand(cmd)
+	for len(cmd.children) > 0 {
+		if len(args) > 0 {
+			if subcmd, ok := cmd.children[args[0]]; ok {
+				cmd, args = subcmd, args[1:]
+				continue
+			}
 		}
-	}
-
-	// len (cmd.children > 0) && len(args) > 0
-
-	subname := args[0]
-	subcmd, ok = cmd.children[subname]
-	if ok {
-		// subcommand found.
-		args = args[1:]
-		cmd = subcmd
-	} else {
-		// no subcommand passed in, so cmd should have a Cmd to execute
+		if cmd.Cmd != nil {
+			break
+		}
+		if len(args) > 0 {
+			return usageOf(cmd), errors.New("Unknown subcommand for " + fullName(cmd) + ": " + args[0])
+		}
 		return wrongOrMissingSubcommand(cmd)
 	}
-
 	return cmdWithFlagsChecked(cmd, args)
+}
+
+// usageOf returns a Command that prints the usage of cmd to stderr.
+func usageOf(cmd *Command) *Command {
+	return &Command{Cmd: func(*Command) error { return Usage(cmd) }}
 }
 
 // Take a *Command and check if any flags were passed in that
 // do not belong to the Command. Return either the Command, or
 // a Usage command in case unknown flags are found.
 func cmdWithFlagsChecked(cmd *Command, args []string) (*Command, error) {
-	// No subcommands defined. Check the flags and return the command.
 	cmd.Args = args
 	notMyFlags := checkFlags(cmd)
-	s := ""
 	if len(notMyFlags) > 0 {
-		if len(notMyFlags) > 1 {
+		names := make([]string, 0, len(notMyFlags))
+		for f := range notMyFlags {
+			names = append(names, "--"+f)
+		}
+		sort.Strings(names)
+		s := ""
+		if len(names) > 1 {
 			s = "s"
 		}
-		errmsg := fmt.Sprintf("Unknown flag%s: %v", s, notMyFlags)
-		return &Command{
-			Cmd: Usage,
-		}, errors.New(errmsg)
+		return usageOf(cmd), fmt.Errorf("Unknown flag%s for %s: %s", s, fullName(cmd), strings.Join(names, ", "))
 	}
 	return cmd, nil
 }
 
 // Create a "subcommands required" error and a Usage command.
 func wrongOrMissingSubcommand(cmd *Command) (*Command, error) {
-	errmsg := "Command " + cmd.Name + " requires one of these subcommands:\n"
-	for _, n := range cmd.children {
-		errmsg += n.Name + "\n"
+	names := make([]string, 0, len(cmd.children))
+	for n := range cmd.children {
+		names = append(names, n)
 	}
-	return &Command{
-		Cmd: func(cmd *Command) error { return Usage(cmd) },
-	}, errors.New(errmsg)
+	sort.Strings(names)
+	return usageOf(cmd), errors.New("Command " + fullName(cmd) +
+		" requires one of these subcommands: " + strings.Join(names, ", "))
 }

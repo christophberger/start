@@ -40,3 +40,20 @@ Fixed: empty usage
 
 Fixed: Update dependencies.
 Fixed: nil dereference.
+
+0.7
+-----
+
+### 0.7.0
+
+Added: global `--help`/`-h` flag. `<app>`, `<app> help`, and `<app> --help` print the same overview; `<app> <command> --help` prints the same help as `<app> help <command>`.
+Added: the overview lists subcommands, and a command's help lists the global flags.
+Changed: requested help and the version go to stdout; usage after an error stays on stderr.
+Changed: `Up()` exits with status 1 when the command line is wrong or the command returns an error.
+Changed: an unknown command is an error.
+Changed: flags are listed in pflag's format, with types and defaults.
+Fixed: "Type ag help" named the wrong application.
+Fixed: flags without a shorthand were listed as "-, --name".
+Fixed: the usage printed after a missing subcommand or a wrong flag was empty.
+Fixed: a command with subcommands and a Cmd of its own panicked when called without a subcommand.
+Fixed: commands nested deeper than one subcommand level could not be run.
