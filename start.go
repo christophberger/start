@@ -141,11 +141,31 @@ func parse() error {
 }
 
 // Up parses all flags and then evaluates and executes the command line.
+//
+// Up defines a global --help flag (-h, unless the application uses that
+// shorthand itself) if the application has not defined a "help" flag.
+// `<app>`, `<app> help`, and `<app> --help` print the same overview of the
+// commands and global flags to stdout; `<app> help <command>` and
+// `<app> <command> --help` print the help for that command.
+//
+// If the command line is wrong or the command returns an error, Up prints
+// the error to stderr and exits the program with status 1.
 func Up() {
+	if flag.Lookup("help") == nil {
+		short := "h"
+		if flag.ShorthandLookup(short) != nil {
+			short = ""
+		}
+		flag.BoolP("help", short, false, "Show help for the application or for a command")
+	}
+	// pflag shows the usage when it rejects a flag.
+	flag.Usage = func() { Usage(nil) }
+
 	err := Parse()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Error while parsing flags:")
 		fmt.Fprintln(os.Stderr, err)
+		exit(1)
 		return
 	}
 
@@ -153,6 +173,7 @@ func Up() {
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Error during initialization:")
 		fmt.Fprintln(os.Stderr, err)
+		exit(1)
 		return
 	}
 
@@ -173,20 +194,31 @@ func Up() {
 			Cmd:   showVersion,
 		}
 
-	cmd, err := readCommand(flag.Args())
+	args := flag.Args()
+	if f := flag.Lookup("help"); f != nil && f.Value.String() == "true" {
+		args = append([]string{"help"}, args...)
+	}
+	cmd, err := readCommand(args)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Error while reading a command:")
 		fmt.Fprintln(os.Stderr, err)
-		// Execution can continue safely despite the error, because in this
-		// case, readCommand returns the Usage command.
+		fmt.Fprintln(os.Stderr)
+		// readCommand returns a command that prints the matching usage.
+		cmd.Cmd(cmd)
+		exit(1)
+		return
 	}
 
 	err = cmd.Cmd(cmd)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Error on executing a command:")
 		fmt.Fprintln(os.Stderr, err)
+		exit(1)
 	}
 }
+
+// exit is os.Exit, replaced in tests.
+var exit = os.Exit
 
 // ConfigFilePath returns the path of the config file that has been read in.
 // Use after calling Up() or Parse().

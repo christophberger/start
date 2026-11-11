@@ -146,6 +146,19 @@ start.Up()
 This method calls `start.Parse()` and then executes the given command.
 The command receives its originating Command as input can access `cmd.Args` (a string array) to get all parameters (minus the flags)
 
+If the command line is wrong, or if the command returns an error, `Up()` prints the error to stderr and exits with status 1.
+
+### Help
+
+`start.Up()` provides a `help` and a `version` command, and a global `--help` flag (with the shorthand `-h`, unless your application uses `-h` itself). The help goes to stdout:
+
+* `<app>`, `<app> help`, and `<app> --help` print the same overview: every command and subcommand, and the global flags.
+* `<app> help <command> [<subcommand>]` and `<app> <command> [<subcommand>] --help` print that command's long help, its own flags, the global flags, and its subcommands.
+
+A flag is global if no command lists it in `Flags`. A flag that a command lists belongs to that command (and to every other command that lists it) and is rejected for all other commands.
+
+An unknown command, a missing subcommand, or a flag that belongs to another command prints the error and the matching help to stderr.
+
 
 ### Notes about the config file
 
@@ -333,7 +346,6 @@ func checkspelling(cmd *start.Command) error {
 TODO
 ----
 
-* Add predefined "version" and "help" commands OR flags.
 * Factor out most of this large README into [[Wiki|TOC]] pages.
 * Change the mock-up code from the Example section into executable code.
 

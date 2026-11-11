@@ -8,6 +8,7 @@
 package start
 
 import (
+	"errors"
 	"os"
 	"strings"
 	"testing"
@@ -110,5 +111,81 @@ func TestUp(t *testing.T) {
 		So(cmd, ShouldNotBeNil)
 		So(cmd.Name, ShouldEqual, "help")
 		So(cmd.Cmd, ShouldHaveSameTypeAs, help) // ShouldEqual errors out because of "different types" (since smarty/assertions@v1.15.0)
+	})
+}
+
+func TestUpHelpAndExitStatus(t *testing.T) {
+	setup := func(args ...string) *int {
+		alreadyParsed = false
+		privateFlags = make(privateFlagsMap)
+		flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
+		var testflag, jsonflag string
+		flag.StringVarP(&testflag, "t", "t", "t", "t")
+		flag.StringVarP(&jsonflag, "j", "j", "j", "j")
+		flag.String("addr", "", "Address to listen on")
+		Commands = make(CommandMap)
+		Add(&Command{Name: "web", Short: "Serve", Long: "Serve the web UI.", Flags: []string{"addr"},
+			Cmd: func(*Command) error { return nil }})
+		Add(&Command{Name: "lint", Short: "Lint", Long: "Lint the files.",
+			Cmd: func(*Command) error { return nil }})
+		os.Args = append([]string{os.Args[0]}, args...)
+		status := -1
+		exit = func(code int) { status = code }
+		return &status
+	}
+	defer func() { exit = os.Exit; os.Args = os.Args[:1] }()
+
+	Convey("Up should print the same overview for no command, help, --help and -h", t, func() {
+		var outs []string
+		for _, args := range [][]string{{}, {"help"}, {"--help"}, {"-h"}} {
+			status := setup(args...)
+			outs = append(outs, captureStdout(Up))
+			So(*status, ShouldEqual, -1)
+		}
+		So(outs[0], ShouldContainSubstring, "Available commands:")
+		So(outs[0], ShouldContainSubstring, "--help")
+		So(outs[0], ShouldNotContainSubstring, "--addr")
+		for _, out := range outs[1:] {
+			So(out, ShouldEqual, outs[0])
+		}
+	})
+
+	Convey("Up should print a command's help for help <cmd> and <cmd> --help", t, func() {
+		setup("help", "web")
+		viaHelp := captureStdout(Up)
+		So(viaHelp, ShouldContainSubstring, "Serve the web UI.")
+		So(viaHelp, ShouldContainSubstring, "--addr")
+		setup("web", "--help")
+		So(captureStdout(Up), ShouldEqual, viaHelp)
+	})
+
+	Convey("Up should exit with status 1 on a wrong command line", t, func() {
+		for _, args := range [][]string{{"bogus"}, {"lint", "--addr", "x"}} {
+			status := setup(args...)
+			captureStderr(Up)
+			So(*status, ShouldEqual, 1)
+		}
+	})
+
+	Convey("Up should exit with status 1 when the command fails", t, func() {
+		status := setup("fail")
+		Add(&Command{Name: "fail", Cmd: func(*Command) error { return errors.New("boom") }})
+		So(captureStderr(Up), ShouldContainSubstring, "boom")
+		So(*status, ShouldEqual, 1)
+	})
+
+	Convey("Up should run a parent's own Cmd without a subcommand, and nested subcommands", t, func() {
+		ran := ""
+		status := setup("do")
+		Add(&Command{Name: "do", Cmd: func(*Command) error { ran = "do"; return nil }})
+		Add(&Command{Parent: "do", Name: "deep"})
+		Add(&Command{Parent: "do deep", Name: "er", Cmd: func(*Command) error { ran = "do deep er"; return nil }})
+		Up()
+		So(ran, ShouldEqual, "do")
+		os.Args = []string{os.Args[0], "do", "deep", "er"}
+		alreadyParsed = false
+		Up()
+		So(ran, ShouldEqual, "do deep er")
+		So(*status, ShouldEqual, -1)
 	})
 }

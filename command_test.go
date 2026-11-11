@@ -9,6 +9,7 @@ package start
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"testing"
 
@@ -177,11 +178,37 @@ Usage:
 			So(err, ShouldBeNil)
 		})
 
-		Convey("readCommand should return the Usage command if no valid command was passed in", func() {
+		Convey("readCommand should return the Usage command and an error if no valid command was passed in", func() {
 			cmd, err := readCommand([]string{"invalid", "arg1"})
 			So(cmd, ShouldNotBeNil)
-			// Currently not possible: Test if cmd.Cmd returns the Usage command.
+			So(err, ShouldNotBeNil)
+			So(err.Error(), ShouldContainSubstring, "invalid")
+		})
+
+		Convey("readCommand should return the help command if no command was passed in", func() {
+			cmd, err := readCommand([]string{})
 			So(err, ShouldBeNil)
+			So(cmd.Name, ShouldEqual, "help")
+			So(captureStdout(func() { cmd.Cmd(cmd) }), ShouldContainSubstring, "Available commands:")
+		})
+
+		Convey("readCommand should fail on a missing or unknown subcommand and print the command's usage", func() {
+			for _, args := range [][]string{{"do"}, {"do", "everything"}} {
+				cmd, err := readCommand(args)
+				So(err, ShouldNotBeNil)
+				So(captureStderr(func() { cmd.Cmd(cmd) }), ShouldContainSubstring, "Command do helps testing subcommands.")
+			}
+		})
+
+		Convey("readCommand should fail on another command's flag and print the command's usage", func() {
+			So(flag.Set("yes", "true"), ShouldBeNil)
+			defer flag.Set("yes", "false")
+			flag.CommandLine.Lookup("yes").Changed = true
+			defer func() { flag.CommandLine.Lookup("yes").Changed = false }()
+			cmd, err := readCommand([]string{"do", "something"})
+			So(err, ShouldNotBeNil)
+			So(err.Error(), ShouldContainSubstring, "--yes")
+			So(captureStderr(func() { cmd.Cmd(cmd) }), ShouldContainSubstring, "do something does something")
 		})
 
 		Convey("Usage() should print the usage", func() {
@@ -339,7 +366,7 @@ func TestHelpNavigation(t *testing.T) {
 				Args: []string{"newsletter", "update"},
 			}
 
-			output := captureStderr(func() {
+			output := captureStdout(func() {
 				help(helpCmd)
 			})
 
@@ -354,7 +381,7 @@ func TestHelpNavigation(t *testing.T) {
 				Args: []string{"newsletter", "template", "create"},
 			}
 
-			output := captureStderr(func() {
+			output := captureStdout(func() {
 				help(helpCmd)
 			})
 
@@ -463,7 +490,7 @@ func TestHelpOutput(t *testing.T) {
 				Args: []string{},
 			}
 
-			output := captureStderr(func() {
+			output := captureStdout(func() {
 				help(helpCmd)
 			})
 
@@ -478,7 +505,7 @@ func TestHelpOutput(t *testing.T) {
 				Args: []string{"newsletter"},
 			}
 
-			output := captureStderr(func() {
+			output := captureStdout(func() {
 				help(helpCmd)
 			})
 
@@ -498,7 +525,7 @@ func TestHelpOutput(t *testing.T) {
 				Args: []string{"newsletter"},
 			}
 
-			output := captureStderr(func() {
+			output := captureStdout(func() {
 				help(helpCmd)
 			})
 
@@ -511,7 +538,7 @@ func TestHelpOutput(t *testing.T) {
 				Args: []string{"newsletter", "template"},
 			}
 
-			output := captureStderr(func() {
+			output := captureStdout(func() {
 				help(helpCmd)
 			})
 
@@ -527,19 +554,24 @@ func TestHelpOutput(t *testing.T) {
 	})
 }
 
-func captureStderr(f func()) string {
-	old := os.Stderr
+func captureStderr(f func()) string { return capture(&os.Stderr, f) }
+func captureStdout(f func()) string { return capture(&os.Stdout, f) }
+
+func capture(file **os.File, f func()) string {
+	old := *file
 	r, w, _ := os.Pipe()
-	os.Stderr = w
+	*file = w
+	out := make(chan string)
+	go func() {
+		b, _ := io.ReadAll(r)
+		out <- string(b)
+	}()
 
 	f()
 
 	w.Close()
-	os.Stderr = old
-
-	var buf [1024]byte
-	n, _ := r.Read(buf[:])
-	return string(buf[:n])
+	*file = old
+	return <-out
 }
 
 func TestExternal(t *testing.T) {
@@ -613,10 +645,7 @@ func Example_helpNoArgs() {
 
 	Parse()
 
-	oldStderr := os.Stderr
-	os.Stderr = os.Stdout
 	help(&Command{Name: "help", Args: []string{}})
-	os.Stderr = oldStderr
 
 	// Output:
 	// start.test
@@ -625,16 +654,16 @@ func Example_helpNoArgs() {
 	//
 	// Available commands:
 	//
-	// newsletter  Manage newsletters
-	// subscriber  Manage subscribers
+	//   newsletter  Manage newsletters
+	//   subscriber  Manage subscribers
 	//
 	// Available global flags:
 	//
-	// -v, --verbose=false  Enable verbose output
+	//   -v, --verbose string   Enable verbose output (default "false")
 	//
 	// No config file.
 	//
-	// Type ag help <command> to get help for a specific command.
+	// Type start.test help <command> or start.test <command> --help to get help for a specific command.
 }
 
 func Example_helpCommand() {
@@ -682,26 +711,26 @@ func Example_helpCommand() {
 
 	Parse()
 
-	oldStderr := os.Stderr
-	os.Stderr = os.Stdout
 	help(&Command{Name: "help", Args: []string{"newsletter"}})
-	os.Stderr = oldStderr
 
 	// Output:
-	//
 	// newsletter
 	//
 	// Create, update, and publish newsletters
 	//
 	// Command-specific flags:
 	//
-	// -f, --format=text  Output format (text, json)
+	//   -f, --format string   Output format (text, json) (default "text")
+	//
+	// Available global flags:
+	//
+	//   -v, --verbose   Enable verbose output
 	//
 	// Available subcommands:
 	//
-	// create   Create a new newsletter
-	// publish  Publish a newsletter
-	// update   Update a newsletter
+	//   create   Create a new newsletter
+	//   publish  Publish a newsletter
+	//   update   Update a newsletter
 }
 
 func Example_helpSubcommand() {
@@ -747,23 +776,19 @@ func Example_helpSubcommand() {
 
 	Parse()
 
-	oldStderr := os.Stderr
-	os.Stderr = os.Stdout
 	help(&Command{Name: "help", Args: []string{"newsletter", "template"}})
-	os.Stderr = oldStderr
 
 	// Output:
-	//
 	// newsletter template
 	//
 	// Create, edit, and delete newsletter templates
 	//
 	// Command-specific flags:
 	//
-	// -v, --verbose=false  Enable verbose output
+	//   -v, --verbose   Enable verbose output
 	//
 	// Available subcommands:
 	//
-	// create  Create a template
-	// delete  Delete a template
+	//   create  Create a template
+	//   delete  Delete a template
 }
