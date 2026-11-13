@@ -37,3 +37,4 @@ examples/test/start-external
 examples/test/debug
 realize.yaml
 start.code-workspace
+session-ses_*.md
