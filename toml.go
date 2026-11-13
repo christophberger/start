@@ -118,12 +118,15 @@ func GetUserConfigDir() (dir string, exists bool) {
 	if runtime.GOOS == "windows" {
 		dir = filepath.Join(os.Getenv("LOCALAPPDATA"), appName())
 	} else {
-		// Linuxes may have this config env var defined.
-		dir = os.Getenv("XDG_CONFIG_HOME")
-		if dir == "" {
+		// Linuxes may have this config env var defined. Per the XDG Base
+		// Directory spec, it points to the base config dir, so the app's
+		// own config dir is $XDG_CONFIG_HOME/<appname>/.
+		base := os.Getenv("XDG_CONFIG_HOME")
+		if base == "" {
 			// else use the common ~/.config/<appname>/ convention.
-			dir = filepath.Join(os.Getenv("HOME"), ".config", appName())
+			base = filepath.Join(os.Getenv("HOME"), ".config")
 		}
+		dir = filepath.Join(base, appName())
 	}
 	// verify if the config dir exists in the file system
 	exists = true

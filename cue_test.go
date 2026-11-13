@@ -243,3 +243,50 @@ astring: "hi"
 		})
 	})
 }
+
+// TestCueUserConfigDir covers the real-world case of an application
+// (here: "eigenbeleg") that keeps its config in ~/.config/<appname>/config.cue,
+// both with and without XDG_CONFIG_HOME being set.
+func TestCueUserConfigDir(t *testing.T) {
+	savedApp := App
+	App = "eigenbeleg"
+	defer func() { App = savedApp }()
+
+	home := t.TempDir()
+	cfgdir := filepath.Join(home, ".config", "eigenbeleg")
+	if err := os.MkdirAll(cfgdir, 0755); err != nil {
+		t.Fatal(err)
+	}
+	cuepath := filepath.Join(cfgdir, "config.cue")
+	if err := os.WriteFile(cuepath, []byte("astring: \"from user config dir\"\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("HOME", home)
+	t.Setenv("EIGENBELEG_CFGPATH", "")
+	t.Setenv("XDG_CONFIG_HOME", "") // restored after the test
+
+	Convey("Given ~/.config/eigenbeleg/config.cue", t, func() {
+
+		Convey("when XDG_CONFIG_HOME is not set", func() {
+			os.Unsetenv("XDG_CONFIG_HOME")
+
+			Convey("then newConfigFile should load config.cue from ~/.config/eigenbeleg/", func() {
+				cfg, err := newConfigFile("")
+				So(err, ShouldBeNil)
+				So(cfg.Path(), ShouldEqual, cuepath)
+				So(cfg.String("astring"), ShouldEqual, "from user config dir")
+			})
+		})
+
+		Convey("when XDG_CONFIG_HOME is set to ~/.config", func() {
+			os.Setenv("XDG_CONFIG_HOME", filepath.Join(home, ".config"))
+
+			Convey("then newConfigFile should load config.cue from $XDG_CONFIG_HOME/eigenbeleg/", func() {
+				cfg, err := newConfigFile("")
+				So(err, ShouldBeNil)
+				So(cfg.Path(), ShouldEqual, cuepath)
+				So(cfg.String("astring"), ShouldEqual, "from user config dir")
+			})
+		})
+	})
+}
